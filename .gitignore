@@ -5,3 +5,10 @@
 .pub/
 
 build/
+doc
+.idea
+.gradle
+.vscode
+integration_test/.flutter-plugins
+integration_test/.flutter-plugins-dependencies
+local.properties
