@@ -17,7 +17,7 @@ void main() {
     channel.setMockMethodCallHandler(null);
   });
 
-  test('getPlatformVersion', () async {
-    expect(await ApptimizeFlutter.platformVersion, '42');
+  test('getLibraryVersion', () async {
+    expect(await Apptimize.libraryVersion, '42');
   });
 }
