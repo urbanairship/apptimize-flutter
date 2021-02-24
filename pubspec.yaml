@@ -2,6 +2,7 @@ name: apptimize_flutter
 description: Apptimize Library for AB testing Flutter applications.
 version: 1.0.0
 homepage: https://www.apptimize.com
+repository: https://github.com/urbanairship/apptimize-flutter/
 
 environment:
   sdk: ">=2.7.0 <3.0.0"
