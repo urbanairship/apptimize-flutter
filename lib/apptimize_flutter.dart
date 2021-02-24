@@ -136,8 +136,6 @@ class Apptimize {
   ///
   /// Returns `true` if Apptimize is configured to run in offline mode.
   /// Otherwise it returns `false`.
-  ///
-  /// **Note** this method always returns `false` on Android.
   static Future<bool> get offline async {
     return await _channel.invokeMethod('getOffline');
   }
@@ -347,8 +345,6 @@ class Apptimize {
   }
 
   /// Remove all user defined attributes.
-  ///
-  /// **Note** this function is not available on Android.
   static Future<void> removeAllUserAttributes() async {
     await _channel.invokeMethod('removeAllUserAttributes');
   }

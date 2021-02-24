@@ -272,8 +272,8 @@ class _MyAppState extends State<MyApp> {
 
       'testGetSetPilotTargetingId': this.testGetSetPilotTargetingId,
 
-      // Do this one manually.
-      //'testSetOffline': this.testSetOffline,
+      // Do this one last.
+      'testSetOffline': this.testSetOffline,
 
       // Do this one manually since you can't undo it (and it would disable the metadata updates)
       // 'testDisable': this.testDisable
@@ -353,10 +353,16 @@ class _MyAppState extends State<MyApp> {
 
   Future<void> testSetOffline() async {
     await Apptimize.setOffline(true);
+
+    await Future.delayed(const Duration(seconds: 1), () => null);
+
     var result = await Apptimize.offline;
     assertTrue(result, "Offline flag should be true");
 
     await Apptimize.setOffline(false);
+
+    await Future.delayed(const Duration(seconds: 1), () => null);
+
     result = await Apptimize.offline;
     assertFalse(result, "Offline flag should be false");
   }
@@ -528,12 +534,6 @@ class _MyAppState extends State<MyApp> {
   }
 
   Future<void> testRemoveAllUserAttributes() async {
-    if (Platform.isAndroid) {
-      addResult(
-          "🟠 Skipped: removeAllUserAttributes is not available on Android");
-      return;
-    }
-
     var expectBool = true;
     var expectDouble = 492.312;
     var expectInt = 42;
