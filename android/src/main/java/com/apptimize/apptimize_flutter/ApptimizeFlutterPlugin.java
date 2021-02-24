@@ -198,8 +198,7 @@ public class ApptimizeFlutterPlugin implements FlutterPlugin, MethodCallHandler,
           break;
 
         case "getOffline":
-          // Not supported on android?
-          result.notImplemented();
+          resultValue = Apptimize.isOffline();
           break;
 
         case "getMetadataState":
@@ -306,9 +305,7 @@ public class ApptimizeFlutterPlugin implements FlutterPlugin, MethodCallHandler,
         }
 
         case "removeAllUserAttributes":
-          // Not supported on Android
-          // Apptimize.clearUserAttribute();
-          result.notImplemented();
+          Apptimize.clearAllUserAttributes();
           break;
 
         case "getUserAttribute": {
@@ -323,12 +320,18 @@ public class ApptimizeFlutterPlugin implements FlutterPlugin, MethodCallHandler,
               break;
             case "int":
               resultValue = Apptimize.getUserAttributeInteger(attributeName);
+              // To ensure consistent behaviour with iOS, return default values.
+              if (resultValue == null) { resultValue = 0; }
               break;
             case "double":
               resultValue = Apptimize.getUserAttributeDouble(attributeName);
+              // To ensure consistent behaviour with iOS, return default values.
+              if (resultValue == null) { resultValue = 0.0; }
               break;
             case "bool":
               resultValue = Apptimize.getUserAttributeBoolean(attributeName);
+              // To ensure consistent behaviour with iOS, return default values.
+              if (resultValue == null) resultValue = false;
               break;
             default:
               throw new InvalidPluginArgumentException("type", type);
