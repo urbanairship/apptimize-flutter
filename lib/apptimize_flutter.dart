@@ -47,7 +47,7 @@ class Apptimize {
   ///
   /// You should always wait for the [ApptimizeInitializedEvent] event to be
   /// fired before you use Apptimize. See [apptimizeInitializedStream].
-  /// 
+  ///
   /// If you do not wait for initialization you may get default values for any
   /// tests run.
   ///
@@ -59,8 +59,7 @@ class Apptimize {
   /// the app has been modified to be more secure. In this case, listening for
   /// the [ApptimizeInitializedEvent] event will ensure that apptimize is
   /// available.
-  static void startApptimize(String appKey,
-      [ApptimizeOptions options]) {        
+  static void startApptimize(String appKey, [ApptimizeOptions options]) {
     _channel.invokeMethod(
         'startApptimize', {"appKey": appKey, "options": options?.toMap()});
   }
@@ -1139,9 +1138,12 @@ class ApptimizeTestInfo {
     final int testId = map['testId'];
     final int enrolledVariantId = map['enrolledVariantId'];
     final String testStartedDateRaw = map['testStartedDate'];
-    final DateTime testStartedDate = testStartedDateRaw != null ? DateTime.parse(testStartedDateRaw) : null;
+    final DateTime testStartedDate =
+        testStartedDateRaw != null ? DateTime.parse(testStartedDateRaw) : null;
     final String testEnrolledDateRaw = map['testEnrolledDate'];
-    final DateTime testEnrolledDate = testEnrolledDateRaw != null ? DateTime.parse(testEnrolledDateRaw) : null;
+    final DateTime testEnrolledDate = testEnrolledDateRaw != null
+        ? DateTime.parse(testEnrolledDateRaw)
+        : null;
     final int cycle = map['cycle'];
     final int currentPhase = map['currentPhase'];
     final int participationPhase = map['participationPhase'];
@@ -1320,7 +1322,8 @@ class ApptimizeInstantUpdateOrWinnerInfo {
     final String winningVariantName = map['winningVariantName'];
     final int winningVariantId = map['winningVariantId'];
     final String startDateRaw = map['startDate'];
-    final DateTime startDate = startDateRaw != null ? DateTime.parse(startDateRaw) : null;
+    final DateTime startDate =
+        startDateRaw != null ? DateTime.parse(startDateRaw) : null;
     final String userId = map['userId'];
     final String anonymousUserId = map['anonymousUserId'];
 
