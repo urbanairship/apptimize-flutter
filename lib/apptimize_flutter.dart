@@ -11,7 +11,7 @@ import 'package:flutter/services.dart';
 /// To get started call [startApptimize] with your Apptimize app key.
 class Apptimize {
   static final String _logTag = "com.apptimize.apptimize";
-  
+
   /// Gets the broadcast stream of [ApptimizeEnrolledInExperimentEvent] events.
   static Stream<ApptimizeEnrolledInExperimentEvent>
       get apptimizeEnrolledInExperimentStream =>
@@ -142,7 +142,8 @@ class Apptimize {
   static Future<bool> get offline async {
     var isOffline = await _channel.invokeMethod('getOffline');
     if (isOffline == null) {
-      developer.log("Expected `bool` as `getOffline` response", name: Apptimize._logTag);
+      developer.log("Expected `bool` as `getOffline` response",
+          name: Apptimize._logTag);
     }
     return isOffline ?? false;
   }
@@ -158,19 +159,20 @@ class Apptimize {
     final bool? isRefreshing = metadataState['isRefreshing'];
 
     if (isAvailable == null) {
-      developer.log("Missing `isAvailable` in `getMetadataState` response", name: Apptimize._logTag);
+      developer.log("Missing `isAvailable` in `getMetadataState` response",
+          name: Apptimize._logTag);
     }
     if (isUpToDate == null) {
-      developer.log("Missing `isUpToDate` in `getMetadataState` response", name: Apptimize._logTag);
+      developer.log("Missing `isUpToDate` in `getMetadataState` response",
+          name: Apptimize._logTag);
     }
     if (isRefreshing == null) {
-      developer.log("Missing `isRefreshing` in `getMetadataState` response", name: Apptimize._logTag);
+      developer.log("Missing `isRefreshing` in `getMetadataState` response",
+          name: Apptimize._logTag);
     }
 
     return new ApptimizeMetaDataState(
-      isAvailable ?? false,
-      isUpToDate ?? false,
-      isRefreshing ?? false);
+        isAvailable ?? false, isUpToDate ?? false, isRefreshing ?? false);
   }
 
   /// Generate an event with the name [eventName].
@@ -187,7 +189,8 @@ class Apptimize {
   /// formatted as major.minor.build (e.g., 1.2.0) followed by the underlying
   /// platform (e.g. iOS).
   static Future<String> get libraryVersion async {
-    final String? libraryVersion = await _channel.invokeMethod<String>('getLibraryVersion');
+    final String? libraryVersion =
+        await _channel.invokeMethod<String>('getLibraryVersion');
     return libraryVersion ?? "ApptimizeVersionError";
   }
 
@@ -264,9 +267,10 @@ class Apptimize {
   /// Returns `true` if the feature flag is on, `false` if it is not.
   static Future<bool> isFeatureFlagOn(String featureFlagName) async {
     final bool? response = await _channel.invokeMethod<bool>(
-            'isFeatureFlagOn', {'featureFlagName': featureFlagName});
+        'isFeatureFlagOn', {'featureFlagName': featureFlagName});
     if (response == null) {
-      developer.log("Expected `bool` in `featureFlatName` response", name: Apptimize._logTag);
+      developer.log("Expected `bool` in `featureFlatName` response",
+          name: Apptimize._logTag);
     }
 
     return response ?? false;
@@ -292,21 +296,27 @@ class Apptimize {
 
     final entries = result.entries;
     if (entries == null) {
-      developer.log("Missing `entries` in `getApptimizeInfo` response", name: Apptimize._logTag);
+      developer.log("Missing `entries` in `getApptimizeInfo` response",
+          name: Apptimize._logTag);
       return null;
     }
 
-    Map<String, ApptimizeTestInfo?> apptimizeTestInfos = new Map<String, ApptimizeTestInfo?>();
+    Map<String, ApptimizeTestInfo?> apptimizeTestInfos =
+        new Map<String, ApptimizeTestInfo?>();
     for (final e in entries) {
       final String key = e.key;
       final Map value = e.value;
       if (key == null) {
-        developer.log("Expected `String` key in entries of `getApptimizeTestInfo` response", name: Apptimize._logTag);
-        continue; 
+        developer.log(
+            "Expected `String` key in entries of `getApptimizeTestInfo` response",
+            name: Apptimize._logTag);
+        continue;
       }
       if (value == null) {
-        developer.log("Expected `Map` value in entries of `getApptimizeTestInfo` response", name: Apptimize._logTag);
-        continue; 
+        developer.log(
+            "Expected `Map` value in entries of `getApptimizeTestInfo` response",
+            name: Apptimize._logTag);
+        continue;
       }
 
       apptimizeTestInfos[key] = ApptimizeTestInfo._fromMap(value);
@@ -334,24 +344,32 @@ class Apptimize {
 
     final entries = result.entries;
     if (entries == null) {
-      developer.log("Missing `entries` in `getInstantUpdateAndWinnerInfo` response", name: Apptimize._logTag);
+      developer.log(
+          "Missing `entries` in `getInstantUpdateAndWinnerInfo` response",
+          name: Apptimize._logTag);
       return null;
     }
 
-    Map<String, ApptimizeInstantUpdateOrWinnerInfo?> apptimizeTestInfos = new Map<String, ApptimizeInstantUpdateOrWinnerInfo?>();
+    Map<String, ApptimizeInstantUpdateOrWinnerInfo?> apptimizeTestInfos =
+        new Map<String, ApptimizeInstantUpdateOrWinnerInfo?>();
     for (final e in entries) {
       final String key = e.key;
       final Map value = e.value;
       if (key == null) {
-        developer.log("Expected `String` key in entries of `getInstantUpdateAndWinnerInfo` response", name: Apptimize._logTag);
-        continue; 
+        developer.log(
+            "Expected `String` key in entries of `getInstantUpdateAndWinnerInfo` response",
+            name: Apptimize._logTag);
+        continue;
       }
       if (value == null) {
-        developer.log("Expected `Map` value in entries of `getInstantUpdateAndWinnerInfo` response", name: Apptimize._logTag);
-        continue; 
+        developer.log(
+            "Expected `Map` value in entries of `getInstantUpdateAndWinnerInfo` response",
+            name: Apptimize._logTag);
+        continue;
       }
 
-      apptimizeTestInfos[key] = ApptimizeInstantUpdateOrWinnerInfo._fromMap(value);
+      apptimizeTestInfos[key] =
+          ApptimizeInstantUpdateOrWinnerInfo._fromMap(value);
     }
 
     return apptimizeTestInfos;
@@ -488,18 +506,21 @@ class Apptimize {
     if (result == null) {
       return Map();
     }
-    
+
     Map<int, ApptimizeVariant> variants = new Map<int, ApptimizeVariant>();
     for (final Map e in result) {
       if (e == null) {
-        developer.log("Expected `Map` in each entry of `getVariants` response", name: Apptimize._logTag);
+        developer.log("Expected `Map` in each entry of `getVariants` response",
+            name: Apptimize._logTag);
         continue;
       }
 
       final ApptimizeVariant variant = ApptimizeVariant._fromMap(e)!;
       final int key = variant.variantId;
       if (variant == null || key == null) {
-        developer.log("Expected `int` `variantId` in each entry of `getVariants` response", name: Apptimize._logTag);
+        developer.log(
+            "Expected `int` `variantId` in each entry of `getVariants` response",
+            name: Apptimize._logTag);
         continue;
       }
 
@@ -520,7 +541,8 @@ class Apptimize {
   /// Helper declaring dynamic variables
   static Future<bool> _declareDynamicVariable(
       String name, String type, dynamic defaultValue) async {
-    final variableDeclared = await _channel.invokeMethod("declareDynamicVariable",
+    final variableDeclared = await _channel.invokeMethod(
+        "declareDynamicVariable",
         {'name': name, 'type': type, 'defaultValue': defaultValue});
     return variableDeclared ?? false;
   }
@@ -549,7 +571,9 @@ class Apptimize {
         case 'ApptimizeEnrolledInExperiment':
           var testInfo = ApptimizeTestInfo._fromMap(call.arguments['testInfo']);
           if (testInfo == null) {
-            developer.log("Will not fire `ApptimizeEnrolledInExperiment` with empty info", name: Apptimize._logTag);
+            developer.log(
+                "Will not fire `ApptimizeEnrolledInExperiment` with empty info",
+                name: Apptimize._logTag);
             return;
           }
           _apptimizeEnrolledInExperimentStreamController
@@ -560,11 +584,15 @@ class Apptimize {
           var testInfo = ApptimizeTestInfo._fromMap(call.arguments['testInfo']);
           bool? firstParticipation = call.arguments['firstParticipation'];
           if (testInfo == null) {
-            developer.log("Will not fire `ApptimizeParticipatedInExperiment` with empty info", name: Apptimize._logTag);
+            developer.log(
+                "Will not fire `ApptimizeParticipatedInExperiment` with empty info",
+                name: Apptimize._logTag);
             return;
           }
           if (firstParticipation == null) {
-            developer.log("Expected `firstParticipation` in `ApptimizeParticipatedInExperiment` event args.", name: Apptimize._logTag);
+            developer.log(
+                "Expected `firstParticipation` in `ApptimizeParticipatedInExperiment` event args.",
+                name: Apptimize._logTag);
           }
           _apptimizeParticipatedInExperimentStreamController.add(
               new ApptimizeParticipatedInExperimentEvent(
@@ -574,14 +602,18 @@ class Apptimize {
         case 'ApptimizeUnenrolledInExperiment':
           var testInfo = ApptimizeTestInfo._fromMap(call.arguments['testInfo']);
           if (testInfo == null) {
-            developer.log("Will not fire `ApptimizeUnenrolledInExperiment` with empty info", name: Apptimize._logTag);
+            developer.log(
+                "Will not fire `ApptimizeUnenrolledInExperiment` with empty info",
+                name: Apptimize._logTag);
             return;
           }
 
           String? unenrollmentReasonString =
               call.arguments['unenrollmentReason'];
           if (unenrollmentReasonString == null) {
-            developer.log("Will not fire `ApptimizeUnenrolledInExperiment` with missing `unenrollmentReasonString`", name: Apptimize._logTag);
+            developer.log(
+                "Will not fire `ApptimizeUnenrolledInExperiment` with missing `unenrollmentReasonString`",
+                name: Apptimize._logTag);
             return;
           }
 
@@ -598,7 +630,8 @@ class Apptimize {
           break;
 
         case 'ApptimizeResumed':
-          bool willRefreshMetadata = call.arguments['willRefreshMetadata'] ?? false;
+          bool willRefreshMetadata =
+              call.arguments['willRefreshMetadata'] ?? false;
           _apptimizeResumedStreamController
               .add(new ApptimizeResumedEvent(willRefreshMetadata));
           break;
@@ -1012,7 +1045,8 @@ class ApptimizeVariable<T> {
   ///
   /// [name] must not be null. If no integer list dynamic variable has been declared
   /// with the specified name, this function returns `null`.
-  static Future<ApptimizeListVariable<int>?> getIntegerArray(String name) async {
+  static Future<ApptimizeListVariable<int>?> getIntegerArray(
+      String name) async {
     return _getDynamicListVariable<int>(name, _DVTypeArray + _DVTypeInt);
   }
 
@@ -1160,10 +1194,26 @@ class ApptimizeVariant {
     final int? experimentId = map['experimentId'];
     final int? variantId = map['variantId'];
 
-    if (variantId == null) { developer.log("Missing `variantId` in `ApptimizeVariant` map", name: Apptimize._logTag); return null; }
-    if (variantName == null) { developer.log("Missing `variantName` in `ApptimizeVariant` map", name: Apptimize._logTag); return null; }
-    if (experimentId == null) { developer.log("Missing `experimentId` in `ApptimizeVariant` map", name: Apptimize._logTag); return null; }
-    if (experimentName == null) { developer.log("Missing `experimentName` in `ApptimizeVariant` map", name: Apptimize._logTag); return null; }
+    if (variantId == null) {
+      developer.log("Missing `variantId` in `ApptimizeVariant` map",
+          name: Apptimize._logTag);
+      return null;
+    }
+    if (variantName == null) {
+      developer.log("Missing `variantName` in `ApptimizeVariant` map",
+          name: Apptimize._logTag);
+      return null;
+    }
+    if (experimentId == null) {
+      developer.log("Missing `experimentId` in `ApptimizeVariant` map",
+          name: Apptimize._logTag);
+      return null;
+    }
+    if (experimentName == null) {
+      developer.log("Missing `experimentName` in `ApptimizeVariant` map",
+          name: Apptimize._logTag);
+      return null;
+    }
 
     return new ApptimizeVariant(
         experimentName, experimentId, variantName, variantId);
@@ -1278,19 +1328,67 @@ class ApptimizeTestInfo {
     final String? apptimizeExperimentTypeName = map['experimentType'];
     final ApptimizeExperimentType experimentType =
         apptimizeExperimentTypeName.parseApptimizeExperimentType();
-    
-    if (testName == null) { developer.log("Missing `testName` in `ApptimizeTestInfo` map", name: Apptimize._logTag); return null; }
-    if (enrolledVariantName == null) { developer.log("Missing `enrolledVariantName` in `ApptimizeTestInfo` map", name: Apptimize._logTag); return null; }
-    if (testId == null) { developer.log("Missing `testId` in `ApptimizeTestInfo` map", name: Apptimize._logTag); return null; }
-    if (enrolledVariantId == null) { developer.log("Missing `enrolledVariantId` in `ApptimizeTestInfo` map", name: Apptimize._logTag); return null; }
-    if (testStartedDate == null) { developer.log("Missing `testStartedDate` in `ApptimizeTestInfo` map", name: Apptimize._logTag); return null; }
-    if (testEnrolledDate == null) { developer.log("Missing `testEnrolledDate` in `ApptimizeTestInfo` map", name: Apptimize._logTag); return null; }
-    if (cycle == null) { developer.log("Missing `cycle` in `ApptimizeTestInfo` map", name: Apptimize._logTag); return null; }
-    if (currentPhase == null) { developer.log("Missing `currentPhase` in `ApptimizeTestInfo` map", name: Apptimize._logTag); return null; }
-    if (participationPhase == null) { developer.log("Missing `participationPhase` in `ApptimizeTestInfo` map", name: Apptimize._logTag); return null; }
-    if (userHasParticipated == null) { developer.log("Missing `userHasParticipated` in `ApptimizeTestInfo` map", name: Apptimize._logTag); return null; }
-    if (anonymousUserId == null) { developer.log("Missing `anonymousUserId` in `ApptimizeTestInfo` map", name: Apptimize._logTag); return null; }
-    if (apptimizeExperimentTypeName == null) { developer.log("Missing `experimentType` in `ApptimizeTestInfo` map", name: Apptimize._logTag); return null; }
+
+    if (testName == null) {
+      developer.log("Missing `testName` in `ApptimizeTestInfo` map",
+          name: Apptimize._logTag);
+      return null;
+    }
+    if (enrolledVariantName == null) {
+      developer.log("Missing `enrolledVariantName` in `ApptimizeTestInfo` map",
+          name: Apptimize._logTag);
+      return null;
+    }
+    if (testId == null) {
+      developer.log("Missing `testId` in `ApptimizeTestInfo` map",
+          name: Apptimize._logTag);
+      return null;
+    }
+    if (enrolledVariantId == null) {
+      developer.log("Missing `enrolledVariantId` in `ApptimizeTestInfo` map",
+          name: Apptimize._logTag);
+      return null;
+    }
+    if (testStartedDate == null) {
+      developer.log("Missing `testStartedDate` in `ApptimizeTestInfo` map",
+          name: Apptimize._logTag);
+      return null;
+    }
+    if (testEnrolledDate == null) {
+      developer.log("Missing `testEnrolledDate` in `ApptimizeTestInfo` map",
+          name: Apptimize._logTag);
+      return null;
+    }
+    if (cycle == null) {
+      developer.log("Missing `cycle` in `ApptimizeTestInfo` map",
+          name: Apptimize._logTag);
+      return null;
+    }
+    if (currentPhase == null) {
+      developer.log("Missing `currentPhase` in `ApptimizeTestInfo` map",
+          name: Apptimize._logTag);
+      return null;
+    }
+    if (participationPhase == null) {
+      developer.log("Missing `participationPhase` in `ApptimizeTestInfo` map",
+          name: Apptimize._logTag);
+      return null;
+    }
+    if (userHasParticipated == null) {
+      developer.log("Missing `userHasParticipated` in `ApptimizeTestInfo` map",
+          name: Apptimize._logTag);
+      return null;
+    }
+    if (anonymousUserId == null) {
+      developer.log("Missing `anonymousUserId` in `ApptimizeTestInfo` map",
+          name: Apptimize._logTag);
+      return null;
+    }
+    if (apptimizeExperimentTypeName == null) {
+      developer.log("Missing `experimentType` in `ApptimizeTestInfo` map",
+          name: Apptimize._logTag);
+      return null;
+    }
 
     return new ApptimizeTestInfo(
         testName,
@@ -1465,15 +1563,60 @@ class ApptimizeInstantUpdateOrWinnerInfo {
     final String? userId = map['userId'];
     final String? anonymousUserId = map['anonymousUserId'];
 
-    if (isInstantUpdate == null) { developer.log("Missing `isInstantUpdate` in `ApptimizeInstantUpdateOrWinnerInfo` map", name: Apptimize._logTag); return null; }
-    if (winningExperimentName == null) { developer.log("Missing `winningExperimentName` in `ApptimizeInstantUpdateOrWinnerInfo` map", name: Apptimize._logTag); return null; }
-    if (winningExperimentId == null) { developer.log("Missing `winningExperimentId` in `ApptimizeInstantUpdateOrWinnerInfo` map", name: Apptimize._logTag); return null; }
-    if (instantUpdateName == null) { developer.log("Missing `instantUpdateName` in `ApptimizeInstantUpdateOrWinnerInfo` map", name: Apptimize._logTag); return null; }
-    if (instantUpdateId == null) { developer.log("Missing `instantUpdateId` in `ApptimizeInstantUpdateOrWinnerInfo` map", name: Apptimize._logTag); return null; }
-    if (winningVariantName == null) { developer.log("Missing `winningVariantName` in `ApptimizeInstantUpdateOrWinnerInfo` map", name: Apptimize._logTag); return null; }
-    if (winningVariantId == null) { developer.log("Missing `winningVariantId` in `ApptimizeInstantUpdateOrWinnerInfo` map", name: Apptimize._logTag); return null; }
-    if (startDate == null) { developer.log("Missing `startDate` in `ApptimizeInstantUpdateOrWinnerInfo` map", name: Apptimize._logTag); return null; }
-    if (anonymousUserId == null) { developer.log("Missing `anonymousUserId` in `ApptimizeInstantUpdateOrWinnerInfo` map", name: Apptimize._logTag); return null; }
+    if (isInstantUpdate == null) {
+      developer.log(
+          "Missing `isInstantUpdate` in `ApptimizeInstantUpdateOrWinnerInfo` map",
+          name: Apptimize._logTag);
+      return null;
+    }
+    if (winningExperimentName == null) {
+      developer.log(
+          "Missing `winningExperimentName` in `ApptimizeInstantUpdateOrWinnerInfo` map",
+          name: Apptimize._logTag);
+      return null;
+    }
+    if (winningExperimentId == null) {
+      developer.log(
+          "Missing `winningExperimentId` in `ApptimizeInstantUpdateOrWinnerInfo` map",
+          name: Apptimize._logTag);
+      return null;
+    }
+    if (instantUpdateName == null) {
+      developer.log(
+          "Missing `instantUpdateName` in `ApptimizeInstantUpdateOrWinnerInfo` map",
+          name: Apptimize._logTag);
+      return null;
+    }
+    if (instantUpdateId == null) {
+      developer.log(
+          "Missing `instantUpdateId` in `ApptimizeInstantUpdateOrWinnerInfo` map",
+          name: Apptimize._logTag);
+      return null;
+    }
+    if (winningVariantName == null) {
+      developer.log(
+          "Missing `winningVariantName` in `ApptimizeInstantUpdateOrWinnerInfo` map",
+          name: Apptimize._logTag);
+      return null;
+    }
+    if (winningVariantId == null) {
+      developer.log(
+          "Missing `winningVariantId` in `ApptimizeInstantUpdateOrWinnerInfo` map",
+          name: Apptimize._logTag);
+      return null;
+    }
+    if (startDate == null) {
+      developer.log(
+          "Missing `startDate` in `ApptimizeInstantUpdateOrWinnerInfo` map",
+          name: Apptimize._logTag);
+      return null;
+    }
+    if (anonymousUserId == null) {
+      developer.log(
+          "Missing `anonymousUserId` in `ApptimizeInstantUpdateOrWinnerInfo` map",
+          name: Apptimize._logTag);
+      return null;
+    }
 
     return new ApptimizeInstantUpdateOrWinnerInfo(
         isInstantUpdate,
@@ -1569,13 +1712,15 @@ enum ApptimizeServerRegion {
 extension _ApptimizeEnumSerialization on String? {
   ApptimizeUnenrollmentReason parseApptimizeUnenrollmentReason() {
     return ApptimizeUnenrollmentReason.values.firstWhere(
-        (e) => e.toString().toLowerCase().split(".").last == this!.toLowerCase(),
+        (e) =>
+            e.toString().toLowerCase().split(".").last == this!.toLowerCase(),
         orElse: () => ApptimizeUnenrollmentReason.Unknown);
   }
 
   ApptimizeExperimentType parseApptimizeExperimentType() {
     return ApptimizeExperimentType.values.firstWhere(
-        (e) => e.toString().toLowerCase().split(".").last == this!.toLowerCase(),
+        (e) =>
+            e.toString().toLowerCase().split(".").last == this!.toLowerCase(),
         orElse: () => ApptimizeExperimentType.Unknown);
   }
 }

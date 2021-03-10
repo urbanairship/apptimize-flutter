@@ -433,7 +433,8 @@ class _MyAppState extends State<MyApp> {
   }
 
   Future<void> testGetApptimizeTestInfo() async {
-    var result = await (Apptimize.apptimizeTestInfo as FutureOr<Map<String, ApptimizeTestInfo?>?>);
+    var result = await (Apptimize.apptimizeTestInfo
+        as FutureOr<Map<String, ApptimizeTestInfo?>?>);
     assertNotNull(result);
     if (result == null) return;
     assertFalse(result.isEmpty, "There were no result in apptimize test info");
@@ -446,7 +447,8 @@ class _MyAppState extends State<MyApp> {
   }
 
   Future<void> testGetInstantUpdateAndWinnerInfo() async {
-    var result = await (Apptimize.instantUpdateAndWinnerInfo as FutureOr<Map<String, ApptimizeInstantUpdateOrWinnerInfo?>?>);
+    var result = await (Apptimize.instantUpdateAndWinnerInfo
+        as FutureOr<Map<String, ApptimizeInstantUpdateOrWinnerInfo?>?>);
     assertNotNull(result);
     if (result == null) return;
     assertFalse(result.isEmpty,
@@ -730,20 +732,28 @@ class _MyAppState extends State<MyApp> {
     Apptimize.forceVariant(5259311);
 
     var boolValue = await ApptimizeVariable.getBool("flutterBool");
-    var boolArrayValue = await ApptimizeVariable.getBoolArray("flutterBoolArray");
-    var boolDictValue = await ApptimizeVariable.getBoolDictionary("flutterBoolDict");
+    var boolArrayValue =
+        await ApptimizeVariable.getBoolArray("flutterBoolArray");
+    var boolDictValue =
+        await ApptimizeVariable.getBoolDictionary("flutterBoolDict");
 
     var intValue = await ApptimizeVariable.getInteger("flutterInt");
-    var intArrayValue = await ApptimizeVariable.getIntegerArray("flutterIntArray");
-    var intDictValue = await ApptimizeVariable.getIntegerDictionary("flutterIntDict");
+    var intArrayValue =
+        await ApptimizeVariable.getIntegerArray("flutterIntArray");
+    var intDictValue =
+        await ApptimizeVariable.getIntegerDictionary("flutterIntDict");
 
     var doubleValue = await ApptimizeVariable.getDouble("flutterDouble");
-    var doubleArrayValue = await ApptimizeVariable.getDoubleArray("flutterDoubleArray");
-    var doubleDictValue = await ApptimizeVariable.getDoubleDictionary("flutterDoubleDict");
+    var doubleArrayValue =
+        await ApptimizeVariable.getDoubleArray("flutterDoubleArray");
+    var doubleDictValue =
+        await ApptimizeVariable.getDoubleDictionary("flutterDoubleDict");
 
     var stringValue = await ApptimizeVariable.getString("flutterString");
-    var stringArrayValue = await ApptimizeVariable.getStringArray("flutterStringArray");
-    var stringDictValue = await ApptimizeVariable.getStringDictionary("flutterStringDict");
+    var stringArrayValue =
+        await ApptimizeVariable.getStringArray("flutterStringArray");
+    var stringDictValue =
+        await ApptimizeVariable.getStringDictionary("flutterStringDict");
 
     assertNotNull(boolValue);
     assertNotNull(boolArrayValue);
@@ -757,11 +767,17 @@ class _MyAppState extends State<MyApp> {
     assertNotNull(stringValue);
     assertNotNull(stringArrayValue);
     assertNotNull(stringDictValue);
-    
-    if (boolValue == null || boolArrayValue == null || boolDictValue == null) return;
-    if (intValue == null || intArrayValue == null || intDictValue == null) return;
-    if (doubleValue == null || doubleArrayValue == null || doubleDictValue == null) return;
-    if (stringValue == null || stringArrayValue == null || stringDictValue == null) return;
+
+    if (boolValue == null || boolArrayValue == null || boolDictValue == null)
+      return;
+    if (intValue == null || intArrayValue == null || intDictValue == null)
+      return;
+    if (doubleValue == null ||
+        doubleArrayValue == null ||
+        doubleDictValue == null) return;
+    if (stringValue == null ||
+        stringArrayValue == null ||
+        stringDictValue == null) return;
 
     assertEqual(true, await boolValue.value, "flutterBool");
     assertEqualElements(
@@ -821,11 +837,13 @@ class _MyAppState extends State<MyApp> {
   }
 
   Future<void> testApptimizeParticipatedInExperimentEvent() async {
-    assertAny(_events, (dynamic x) => x is ApptimizeParticipatedInExperimentEvent);
+    assertAny(
+        _events, (dynamic x) => x is ApptimizeParticipatedInExperimentEvent);
   }
 
   Future<void> testApptimizeUnenrolledInExperimentEvent() async {
-    assertAny(_events, (dynamic x) => x is ApptimizeUnenrolledInExperimentEvent);
+    assertAny(
+        _events, (dynamic x) => x is ApptimizeUnenrolledInExperimentEvent);
   }
 
   Future<void> testDisable() async {
