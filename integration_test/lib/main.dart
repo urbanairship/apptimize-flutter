@@ -785,7 +785,6 @@ class _MyAppState extends State<MyApp> {
     assertEqualMaps({"red": false, "green": true}, await boolDictValue.value,
         "flutterBoolDict");
 
-    assertNotNull(intValue);
     if (intValue == null) return;
     assertEqual(98, await intValue.value, "flutterInt");
     assertEqualElements(
@@ -793,7 +792,6 @@ class _MyAppState extends State<MyApp> {
     assertEqualMaps({"games": 55, "movies": 22}, await intDictValue.value,
         "flutterIntDict");
 
-    assertNotNull(doubleValue);
     if (doubleValue == null) return;
     assertEqual(42.0, await doubleValue.value, "flutterDouble");
     assertEqualElements(
@@ -801,7 +799,6 @@ class _MyAppState extends State<MyApp> {
     assertEqualMaps({"c": 0.1, "f": 32.1}, await doubleDictValue.value,
         "flutterDoubleDict");
 
-    assertNotNull(stringValue);
     if (stringValue == null) return;
     assertEqual("galaxy", await stringValue.value, "flutterString");
     assertEqualElements(["one", "two", "three"], await stringArrayValue.value,

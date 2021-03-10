@@ -254,12 +254,18 @@ class Apptimize {
       "updateMetadataTimeout": updateMetadataTimeout
     });
 
+    Function? block = null;
+
     if (codeblock != null) {
-      Function block = codeblocks[codeblock] ?? baseline;
-      block();
-    } else {
-      baseline();
+      block = codeblocks[codeblock];
+      if (block == null) {
+        developer.log("`runTest` received unknown codeblock `${codeblock}` in result, executing default.",
+            name: Apptimize._logTag);
+      }
     }
+
+    block = block ?? baseline;
+    block();
   }
 
   /// Check whether a given feature flag is enabled or not.
@@ -653,12 +659,15 @@ class Apptimize {
           break;
 
         default:
-          print("Don't know how to handle ${call.method}.");
+            developer.log("Don't know how to handle ${call.method}.",
+              name: Apptimize._logTag);
           break;
       }
     } catch (e) {
-      print("An error occurred handling a callback from the plugin.");
-      print(e);
+      developer.log("An error occurred handling a callback from the plugin.",
+        name: Apptimize._logTag);
+      developer.log("${e}",
+        name: Apptimize._logTag);
     }
   }
 
@@ -706,17 +715,21 @@ class ApptimizeValueVariable<T> extends ApptimizeVariable<T> {
   ///
   /// Returns the default value if there is an issue with the incoming variant
   /// data.
-  Future<T> get value async {
+  Future<T?> get value async {
     T? value = await Apptimize._getDynamicVariableValue(name, _type);
     if (value == null) {
-      throw "Invalid value";
+      return null;
     }
 
     if (value is T) {
       return value;
     }
 
-    throw "Invalid value";
+    developer.log(
+        "Apptimzie variable with name `${name}` did not contain the expected type.",
+        name: Apptimize._logTag);
+
+    return null;
   }
 }
 
