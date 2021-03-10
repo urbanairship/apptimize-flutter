@@ -1,5 +1,7 @@
 // ignore_for_file: close_sinks
 import 'dart:async';
+import 'dart:core';
+import 'dart:developer' as developer;
 
 import 'package:flutter/services.dart';
 
@@ -8,6 +10,8 @@ import 'package:flutter/services.dart';
 ///
 /// To get started call [startApptimize] with your Apptimize app key.
 class Apptimize {
+  static final String _logTag = "com.apptimize.apptimize";
+  
   /// Gets the broadcast stream of [ApptimizeEnrolledInExperimentEvent] events.
   static Stream<ApptimizeEnrolledInExperimentEvent>
       get apptimizeEnrolledInExperimentStream =>
@@ -59,7 +63,7 @@ class Apptimize {
   /// the app has been modified to be more secure. In this case, listening for
   /// the [ApptimizeInitializedEvent] event will ensure that apptimize is
   /// available.
-  static void startApptimize(String appKey, [ApptimizeOptions options]) {
+  static void startApptimize(String appKey, [ApptimizeOptions? options]) {
     _channel.invokeMethod(
         'startApptimize', {"appKey": appKey, "options": options?.toMap()});
   }
@@ -77,7 +81,7 @@ class Apptimize {
   /// **Note** If startup is delayed the customer id change will also be delayed
   /// until startup is completed. This means that the change will not be
   /// persisted or available via [customerUserId] until startup is completed.
-  static Future<void> setCustomerUserId(String customerUserId) async {
+  static Future<void> setCustomerUserId(String? customerUserId) async {
     await _channel
         .invokeMethod('setCustomerUserId', {'customerUserId': customerUserId});
   }
@@ -88,7 +92,7 @@ class Apptimize {
   ///
   /// **Note** If startup is delayed the current customer user id will be
   /// unavailable and this function will return `null`.
-  static Future<String> get customerUserId async {
+  static Future<String?> get customerUserId async {
     return await _channel.invokeMethod('getCustomerUserId');
   }
 
@@ -101,7 +105,7 @@ class Apptimize {
   ///
   /// **Note** If startup is delayed the current anonymous user id will be
   /// unavailable and this function will return `null`.
-  static Future<String> get apptimizeAnonUserId async {
+  static Future<String?> get apptimizeAnonUserId async {
     return await _channel.invokeMethod('getApptimizeAnonUserId');
   }
 
@@ -136,24 +140,43 @@ class Apptimize {
   /// Returns `true` if Apptimize is configured to run in offline mode.
   /// Otherwise it returns `false`.
   static Future<bool> get offline async {
-    return await _channel.invokeMethod('getOffline');
+    var isOffline = await _channel.invokeMethod('getOffline');
+    if (isOffline == null) {
+      developer.log("Expected `bool` as `getOffline` response", name: Apptimize._logTag);
+    }
+    return isOffline ?? false;
   }
 
   /// Gets the current state of the Apptimize metadata.
   ///
   /// See [ApptimizeMetaDataState] for more information.
   static Future<ApptimizeMetaDataState> get metadataState async {
-    final Map metadataState = await _channel.invokeMethod('getMetadataState');
-    final bool isAvailable = metadataState['isAvailable'] ?? false;
-    final bool isUpToDate = metadataState['isUpToDate'] ?? false;
-    final bool isRefreshing = metadataState['isRefreshing'] ?? false;
-    return new ApptimizeMetaDataState(isAvailable, isUpToDate, isRefreshing);
+    final Map metadataState =
+        await _channel.invokeMethod('getMetadataState') ?? Map();
+    final bool? isAvailable = metadataState['isAvailable'];
+    final bool? isUpToDate = metadataState['isUpToDate'];
+    final bool? isRefreshing = metadataState['isRefreshing'];
+
+    if (isAvailable == null) {
+      developer.log("Missing `isAvailable` in `getMetadataState` response", name: Apptimize._logTag);
+    }
+    if (isUpToDate == null) {
+      developer.log("Missing `isUpToDate` in `getMetadataState` response", name: Apptimize._logTag);
+    }
+    if (isRefreshing == null) {
+      developer.log("Missing `isRefreshing` in `getMetadataState` response", name: Apptimize._logTag);
+    }
+
+    return new ApptimizeMetaDataState(
+      isAvailable ?? false,
+      isUpToDate ?? false,
+      isRefreshing ?? false);
   }
 
   /// Generate an event with the name [eventName].
   ///
   /// You can optionally associate a numeric [value] with the event.
-  static Future<void> track(String eventName, [double value]) async {
+  static Future<void> track(String eventName, [double? value]) async {
     await _channel
         .invokeMethod('track', {"eventName": eventName, "value": value});
   }
@@ -164,7 +187,8 @@ class Apptimize {
   /// formatted as major.minor.build (e.g., 1.2.0) followed by the underlying
   /// platform (e.g. iOS).
   static Future<String> get libraryVersion async {
-    return await _channel.invokeMethod('getLibraryVersion');
+    final String? libraryVersion = await _channel.invokeMethod<String>('getLibraryVersion');
+    return libraryVersion ?? "ApptimizeVersionError";
   }
 
   /// Sets the pilotTargetingId
@@ -180,7 +204,7 @@ class Apptimize {
   ///
   /// Setting this value will cause pilot targeting to be recalculated if
   /// applicable.
-  static Future<void> setPilotTargetingId(String pilotTargetingId) async {
+  static Future<void> setPilotTargetingId(String? pilotTargetingId) async {
     await _channel.invokeMethod(
         'setPilotTargetingId', {'pilotTargetingId': pilotTargetingId});
   }
@@ -190,7 +214,7 @@ class Apptimize {
   /// Returns `null` if no pilot targeting id is configured.
   ///
   /// See [setPilotTargetingId] for more information.
-  static Future<String> get pilotTargetingId async {
+  static Future<String?> get pilotTargetingId async {
     return await _channel.invokeMethod('getPilotTargetingId');
   }
 
@@ -220,23 +244,32 @@ class Apptimize {
   /// variant this user/device is enrolled in.
   static Future<void> runTest(
       String testName, Function baseline, Map<String, Function> codeblocks,
-      [int updateMetadataTimeout]) async {
-    final String codeblock = await _channel.invokeMethod('runTest', {
+      [int? updateMetadataTimeout]) async {
+    final String? codeblock = await _channel.invokeMethod('runTest', {
       "testName": testName,
       "codeBlocks": codeblocks.keys.toList(),
       "updateMetadataTimeout": updateMetadataTimeout
     });
 
-    Function block = codeblocks[codeblock] ?? baseline;
-    block();
+    if (codeblock != null) {
+      Function block = codeblocks[codeblock] ?? baseline;
+      block();
+    } else {
+      baseline();
+    }
   }
 
   /// Check whether a given feature flag is enabled or not.
   ///
   /// Returns `true` if the feature flag is on, `false` if it is not.
   static Future<bool> isFeatureFlagOn(String featureFlagName) async {
-    return await _channel
-        .invokeMethod('isFeatureFlagOn', {'featureFlagName': featureFlagName});
+    final bool? response = await _channel.invokeMethod<bool>(
+            'isFeatureFlagOn', {'featureFlagName': featureFlagName});
+    if (response == null) {
+      developer.log("Expected `bool` in `featureFlatName` response", name: Apptimize._logTag);
+    }
+
+    return response ?? false;
   }
 
   /// Get information about all Apptimize A/B tests and Feature Flags that the
@@ -250,14 +283,36 @@ class Apptimize {
   ///
   /// **Note** This does not include information about Apptimize A/B tests or
   /// Feature Flags that are running but that the device is not enrolled in.
-  static Future<Map<String, ApptimizeTestInfo>> get apptimizeTestInfo async {
-    final Map<dynamic, dynamic> apptimizeTestInfos =
+  static Future<Map<String, ApptimizeTestInfo?>?> get apptimizeTestInfo async {
+    final Map<dynamic, dynamic>? result =
         await _channel.invokeMethod('getApptimizeTestInfo');
+    if (result == null) {
+      return null;
+    }
 
-    if (apptimizeTestInfos == null) return null;
+    final entries = result.entries;
+    if (entries == null) {
+      developer.log("Missing `entries` in `getApptimizeInfo` response", name: Apptimize._logTag);
+      return null;
+    }
 
-    return new Map.fromIterable(apptimizeTestInfos.entries,
-        key: (e) => e.key, value: (e) => ApptimizeTestInfo._fromMap(e.value));
+    Map<String, ApptimizeTestInfo?> apptimizeTestInfos = new Map<String, ApptimizeTestInfo?>();
+    for (final e in entries) {
+      final String key = e.key;
+      final Map value = e.value;
+      if (key == null) {
+        developer.log("Expected `String` key in entries of `getApptimizeTestInfo` response", name: Apptimize._logTag);
+        continue; 
+      }
+      if (value == null) {
+        developer.log("Expected `Map` value in entries of `getApptimizeTestInfo` response", name: Apptimize._logTag);
+        continue; 
+      }
+
+      apptimizeTestInfos[key] = ApptimizeTestInfo._fromMap(value);
+    }
+
+    return apptimizeTestInfos;
   }
 
   /// Get information about all winning A/B tests and instant updates that the
@@ -269,16 +324,37 @@ class Apptimize {
   /// the test or instant update. If there are no winners or instant updates,
   /// an empty dictionary is returned. If `startApptimize` has not been called
   /// yet `null` is returned.
-  static Future<Map<String, ApptimizeInstantUpdateOrWinnerInfo>>
+  static Future<Map<String, ApptimizeInstantUpdateOrWinnerInfo?>?>
       get instantUpdateAndWinnerInfo async {
-    final Map<dynamic, dynamic> apptimizeTestInfos =
+    final Map<dynamic, dynamic>? result =
         await _channel.invokeMethod('getInstantUpdateAndWinnerInfo');
+    if (result == null) {
+      return null;
+    }
 
-    if (apptimizeTestInfos == null) return null;
+    final entries = result.entries;
+    if (entries == null) {
+      developer.log("Missing `entries` in `getInstantUpdateAndWinnerInfo` response", name: Apptimize._logTag);
+      return null;
+    }
 
-    return new Map.fromIterable(apptimizeTestInfos.entries,
-        key: (e) => e.key,
-        value: (e) => ApptimizeInstantUpdateOrWinnerInfo._fromMap(e.value));
+    Map<String, ApptimizeInstantUpdateOrWinnerInfo?> apptimizeTestInfos = new Map<String, ApptimizeInstantUpdateOrWinnerInfo?>();
+    for (final e in entries) {
+      final String key = e.key;
+      final Map value = e.value;
+      if (key == null) {
+        developer.log("Expected `String` key in entries of `getInstantUpdateAndWinnerInfo` response", name: Apptimize._logTag);
+        continue; 
+      }
+      if (value == null) {
+        developer.log("Expected `Map` value in entries of `getInstantUpdateAndWinnerInfo` response", name: Apptimize._logTag);
+        continue; 
+      }
+
+      apptimizeTestInfos[key] = ApptimizeInstantUpdateOrWinnerInfo._fromMap(value);
+    }
+
+    return apptimizeTestInfos;
   }
 
   /// Set a user attribute [String] to be used for targeting, filtering and
@@ -349,25 +425,25 @@ class Apptimize {
   }
 
   /// Get the currently set [String] value for an attribute.
-  static Future<String> getUserAttributeString(String attributeName) async {
+  static Future<String?> getUserAttributeString(String attributeName) async {
     return await _channel.invokeMethod(
         'getUserAttribute', {'type': 'string', 'attributeName': attributeName});
   }
 
   /// Get the currently set [int] value for an attribute.
-  static Future<int> getUserAttributeInteger(String attributeName) async {
+  static Future<int?> getUserAttributeInteger(String attributeName) async {
     return await _channel.invokeMethod(
         'getUserAttribute', {'type': 'int', 'attributeName': attributeName});
   }
 
   /// Get the currently set [double] value for an attribute.
-  static Future<double> getUserAttributeDouble(String attributeName) async {
+  static Future<double?> getUserAttributeDouble(String attributeName) async {
     return await _channel.invokeMethod(
         'getUserAttribute', {'type': 'double', 'attributeName': attributeName});
   }
 
   /// Get the currently set [bool] value for an attribute.
-  static Future<bool> getUserAttributeBool(String attributeName) async {
+  static Future<bool?> getUserAttributeBool(String attributeName) async {
     return await _channel.invokeMethod(
         'getUserAttribute', {'type': 'bool', 'attributeName': attributeName});
   }
@@ -408,12 +484,29 @@ class Apptimize {
   /// The returned map is a mapping of variant ids to an [ApptimizeVariant].
   /// The returned map will be empty if there are no available variants.
   static Future<Map<int, ApptimizeVariant>> getVariants() async {
-    final List<dynamic> variants = await _channel.invokeMethod('getVariants');
+    final List<dynamic>? result = await _channel.invokeMethod('getVariants');
+    if (result == null) {
+      return Map();
+    }
+    
+    Map<int, ApptimizeVariant> variants = new Map<int, ApptimizeVariant>();
+    for (final Map e in result) {
+      if (e == null) {
+        developer.log("Expected `Map` in each entry of `getVariants` response", name: Apptimize._logTag);
+        continue;
+      }
 
-    return new Map.fromIterable(
-        variants.map((v) => ApptimizeVariant._fromMap(v)),
-        key: (k) => k.variantId,
-        value: (v) => v);
+      final ApptimizeVariant variant = ApptimizeVariant._fromMap(e)!;
+      final int key = variant.variantId;
+      if (variant == null || key == null) {
+        developer.log("Expected `int` `variantId` in each entry of `getVariants` response", name: Apptimize._logTag);
+        continue;
+      }
+
+      variants[variant.variantId] = variant;
+    }
+
+    return variants;
   }
 
   //
@@ -427,15 +520,17 @@ class Apptimize {
   /// Helper declaring dynamic variables
   static Future<bool> _declareDynamicVariable(
       String name, String type, dynamic defaultValue) async {
-    return await _channel.invokeMethod("declareDynamicVariable",
+    final variableDeclared = await _channel.invokeMethod("declareDynamicVariable",
         {'name': name, 'type': type, 'defaultValue': defaultValue});
+    return variableDeclared ?? false;
   }
 
   /// Helper to determine if a dynamic variable is declared or not.
   static Future<bool> _isDynamicVariableDeclared(
       String name, String type) async {
-    return await _channel.invokeMethod(
+    var variableDeclared = await _channel.invokeMethod(
         "isDynamicVariableDeclared", {'name': name, 'type': type});
+    return variableDeclared ?? false;
   }
 
   /// Helper for getting the value of a dynamic variable.
@@ -453,22 +548,43 @@ class Apptimize {
       switch (call.method) {
         case 'ApptimizeEnrolledInExperiment':
           var testInfo = ApptimizeTestInfo._fromMap(call.arguments['testInfo']);
+          if (testInfo == null) {
+            developer.log("Will not fire `ApptimizeEnrolledInExperiment` with empty info", name: Apptimize._logTag);
+            return;
+          }
           _apptimizeEnrolledInExperimentStreamController
               .add(new ApptimizeEnrolledInExperimentEvent(testInfo));
           break;
 
         case 'ApptimizeParticipatedInExperiment':
           var testInfo = ApptimizeTestInfo._fromMap(call.arguments['testInfo']);
-          bool firstParticipation = call.arguments['firstParticipation'];
+          bool? firstParticipation = call.arguments['firstParticipation'];
+          if (testInfo == null) {
+            developer.log("Will not fire `ApptimizeParticipatedInExperiment` with empty info", name: Apptimize._logTag);
+            return;
+          }
+          if (firstParticipation == null) {
+            developer.log("Expected `firstParticipation` in `ApptimizeParticipatedInExperiment` event args.", name: Apptimize._logTag);
+          }
           _apptimizeParticipatedInExperimentStreamController.add(
               new ApptimizeParticipatedInExperimentEvent(
-                  testInfo, firstParticipation));
+                  testInfo, firstParticipation ?? false));
           break;
 
         case 'ApptimizeUnenrolledInExperiment':
           var testInfo = ApptimizeTestInfo._fromMap(call.arguments['testInfo']);
-          String unenrollmentReasonString =
+          if (testInfo == null) {
+            developer.log("Will not fire `ApptimizeUnenrolledInExperiment` with empty info", name: Apptimize._logTag);
+            return;
+          }
+
+          String? unenrollmentReasonString =
               call.arguments['unenrollmentReason'];
+          if (unenrollmentReasonString == null) {
+            developer.log("Will not fire `ApptimizeUnenrolledInExperiment` with missing `unenrollmentReasonString`", name: Apptimize._logTag);
+            return;
+          }
+
           ApptimizeUnenrollmentReason unenrollmentReason =
               unenrollmentReasonString.parseApptimizeUnenrollmentReason();
           _apptimizeUnenrolledInExperimentStreamController.add(
@@ -482,15 +598,15 @@ class Apptimize {
           break;
 
         case 'ApptimizeResumed':
-          bool willRefreshMetadata = call.arguments['willRefreshMetadata'];
+          bool willRefreshMetadata = call.arguments['willRefreshMetadata'] ?? false;
           _apptimizeResumedStreamController
               .add(new ApptimizeResumedEvent(willRefreshMetadata));
           break;
 
         case 'ApptimizeMetadataStateChanged':
-          bool isAvailable = call.arguments['isAvailable'];
-          bool isUpToDate = call.arguments['isUpToDate'];
-          bool isRefreshing = call.arguments['isRefreshing'];
+          bool isAvailable = call.arguments['isAvailable'] ?? false;
+          bool isUpToDate = call.arguments['isUpToDate'] ?? false;
+          bool isRefreshing = call.arguments['isRefreshing'] ?? false;
 
           ApptimizeMetaDataState metaDataState =
               ApptimizeMetaDataState(isAvailable, isUpToDate, isRefreshing);
@@ -558,7 +674,11 @@ class ApptimizeValueVariable<T> extends ApptimizeVariable<T> {
   /// Returns the default value if there is an issue with the incoming variant
   /// data.
   Future<T> get value async {
-    T value = await Apptimize._getDynamicVariableValue(name, _type);
+    T? value = await Apptimize._getDynamicVariableValue(name, _type);
+    if (value == null) {
+      throw "Invalid value";
+    }
+
     if (value is T) {
       return value;
     }
@@ -590,7 +710,7 @@ class ApptimizeListVariable<T> extends ApptimizeVariable<T> {
   Future<List<T>> get value async {
     List<dynamic> list = await Apptimize._getDynamicVariableValue(name, _type);
     if (list.isEmpty) {
-      return List<T>();
+      return [];
     }
 
     return List<T>.from(list);
@@ -668,7 +788,7 @@ class ApptimizeVariable<T> {
   /// update the default value or [null] if it is not a [String].
   ///
   /// The [name] must not be `null`.
-  static Future<ApptimizeVariable<String>> declareString(
+  static Future<ApptimizeVariable<String>?> declareString(
       String name, String defaultValue) async {
     return _declareDynamicVariable<String>(name, _DVTypeString, defaultValue);
   }
@@ -681,7 +801,7 @@ class ApptimizeVariable<T> {
   /// update the default value or [null] if it is not a [bool].
   ///
   /// The [name] and [defaultValue] must not be `null`.
-  static Future<ApptimizeVariable<bool>> declareBool(
+  static Future<ApptimizeVariable<bool>?> declareBool(
       String name, bool defaultValue) async {
     return _declareDynamicVariable<bool>(name, _DVTypeBool, defaultValue);
   }
@@ -694,7 +814,7 @@ class ApptimizeVariable<T> {
   /// update the default value or [null] if it is not an [int].
   ///
   /// The [name] and [defaultValue] must not be `null`.
-  static Future<ApptimizeVariable<int>> declareInteger(
+  static Future<ApptimizeVariable<int>?> declareInteger(
       String name, int defaultValue) async {
     return _declareDynamicVariable<int>(name, _DVTypeInt, defaultValue);
   }
@@ -707,7 +827,7 @@ class ApptimizeVariable<T> {
   /// update the default value or [null] if it is not a [double].
   ///
   /// The [name] and [defaultValue] must not be `null`.
-  static Future<ApptimizeVariable<double>> declareDouble(
+  static Future<ApptimizeVariable<double>?> declareDouble(
       String name, double defaultValue) async {
     return _declareDynamicVariable<double>(name, _DVTypeDouble, defaultValue);
   }
@@ -721,7 +841,7 @@ class ApptimizeVariable<T> {
   /// update the default value or [null] if it is not a list of strings.
   ///
   /// The [name] and [defaultValue] must not be `null`.
-  static Future<ApptimizeListVariable<String>> declareStringArray(
+  static Future<ApptimizeListVariable<String>?> declareStringArray(
       String name, List<String> defaultValue) async {
     return _declareDynamicListVariable<String>(
         name, _DVTypeArray + _DVTypeString, defaultValue);
@@ -736,7 +856,7 @@ class ApptimizeVariable<T> {
   /// update the default value or [null] if it is not a list of booleans.
   ///
   /// The [name] and [defaultValue] must not be `null`.
-  static Future<ApptimizeListVariable<bool>> declareBoolArray(
+  static Future<ApptimizeListVariable<bool>?> declareBoolArray(
       String name, List<bool> defaultValue) async {
     return _declareDynamicListVariable<bool>(
         name, _DVTypeArray + _DVTypeBool, defaultValue);
@@ -751,7 +871,7 @@ class ApptimizeVariable<T> {
   /// update the default value  or [null] if it is not a list of integers.
   ///
   /// The [name] and [defaultValue] must not be null.
-  static Future<ApptimizeListVariable<int>> declareIntegerArray(
+  static Future<ApptimizeListVariable<int>?> declareIntegerArray(
       String name, List<int> defaultValue) async {
     return _declareDynamicListVariable<int>(
         name, _DVTypeArray + _DVTypeInt, defaultValue);
@@ -766,7 +886,7 @@ class ApptimizeVariable<T> {
   /// update the default value  or [null] if it is not a list of doubles.
   ///
   /// The [name] and [defaultValue] must not be null.
-  static Future<ApptimizeListVariable<double>> declareDoubleArray(
+  static Future<ApptimizeListVariable<double>?> declareDoubleArray(
       String name, List<double> defaultValue) async {
     return _declareDynamicListVariable<double>(
         name, _DVTypeArray + _DVTypeDouble, defaultValue);
@@ -781,7 +901,7 @@ class ApptimizeVariable<T> {
   /// update the default value  or [null] if it is not a string dictionary.
   ///
   /// The [name] and [defaultValue] must not be `null`.
-  static Future<ApptimizeMapVariable<String>> declareStringDictionary(
+  static Future<ApptimizeMapVariable<String>?> declareStringDictionary(
       String name, Map<String, String> defaultValue) async {
     return _declareDynamicMapVariable<String>(
         name, _DVTypeDictionary + _DVTypeString, defaultValue);
@@ -796,7 +916,7 @@ class ApptimizeVariable<T> {
   /// update the default value  or [null] if it is not a boolean dictionary.
   ///
   /// The [name] and [defaultValue] must not be `null`.
-  static Future<ApptimizeMapVariable<bool>> declareBoolDictionary(
+  static Future<ApptimizeMapVariable<bool>?> declareBoolDictionary(
       String name, Map<String, bool> defaultValue) async {
     return _declareDynamicMapVariable<bool>(
         name, _DVTypeDictionary + _DVTypeBool, defaultValue);
@@ -811,7 +931,7 @@ class ApptimizeVariable<T> {
   /// update the default value or [null] if it is not an integer dictionary.
   ///
   /// The [name] and [defaultValue] must not be `null`.
-  static Future<ApptimizeMapVariable<int>> declareIntegerDictionary(
+  static Future<ApptimizeMapVariable<int>?> declareIntegerDictionary(
       String name, Map<String, int> defaultValue) async {
     return _declareDynamicMapVariable<int>(
         name, _DVTypeDictionary + _DVTypeInt, defaultValue);
@@ -826,7 +946,7 @@ class ApptimizeVariable<T> {
   /// update the default value or [null] if it is not a double dictionary.
   ///
   /// The [name] and [defaultValue] must not be `null`.
-  static Future<ApptimizeMapVariable<double>> declareDoubleDictionary(
+  static Future<ApptimizeMapVariable<double>?> declareDoubleDictionary(
       String name, Map<String, double> defaultValue) async {
     return _declareDynamicMapVariable<double>(
         name, _DVTypeDictionary + _DVTypeDouble, defaultValue);
@@ -837,7 +957,7 @@ class ApptimizeVariable<T> {
   ///
   /// [name] must not be null. If no string dynamic variable has been declared
   /// with the specified name, this function returns `null`.
-  static Future<ApptimizeValueVariable<String>> getString(String name) async {
+  static Future<ApptimizeValueVariable<String>?> getString(String name) async {
     return _getDynamicVariable<String>(name, _DVTypeString);
   }
 
@@ -846,7 +966,7 @@ class ApptimizeVariable<T> {
   ///
   /// [name] must not be null. If no boolean dynamic variable has been declared
   /// with the specified name, this function returns `null`.
-  static Future<ApptimizeValueVariable<bool>> getBool(String name) async {
+  static Future<ApptimizeValueVariable<bool>?> getBool(String name) async {
     return _getDynamicVariable<bool>(name, _DVTypeBool);
   }
 
@@ -855,7 +975,7 @@ class ApptimizeVariable<T> {
   ///
   /// [name] must not be null. If no integer dynamic variable has been declared
   /// with the specified name, this function returns `null`.
-  static Future<ApptimizeValueVariable<int>> getInteger(String name) async {
+  static Future<ApptimizeValueVariable<int>?> getInteger(String name) async {
     return _getDynamicVariable<int>(name, _DVTypeInt);
   }
 
@@ -864,7 +984,7 @@ class ApptimizeVariable<T> {
   ///
   /// [name] must not be null. If no double dynamic variable has been declared
   /// with the specified name, this function returns `null`.
-  static Future<ApptimizeValueVariable<double>> getDouble(String name) async {
+  static Future<ApptimizeValueVariable<double>?> getDouble(String name) async {
     return _getDynamicVariable<double>(name, _DVTypeDouble);
   }
 
@@ -873,7 +993,7 @@ class ApptimizeVariable<T> {
   ///
   /// [name] must not be null. If no string list dynamic variable has been declared
   /// with the specified name, this function returns `null`.
-  static Future<ApptimizeListVariable<String>> getStringArray(
+  static Future<ApptimizeListVariable<String>?> getStringArray(
       String name) async {
     return _getDynamicListVariable<String>(name, _DVTypeArray + _DVTypeString);
   }
@@ -883,7 +1003,7 @@ class ApptimizeVariable<T> {
   ///
   /// [name] must not be null. If no boolean list dynamic variable has been declared
   /// with the specified name, this function returns `null`.
-  static Future<ApptimizeListVariable<bool>> getBoolArray(String name) async {
+  static Future<ApptimizeListVariable<bool>?> getBoolArray(String name) async {
     return _getDynamicListVariable<bool>(name, _DVTypeArray + _DVTypeBool);
   }
 
@@ -892,7 +1012,7 @@ class ApptimizeVariable<T> {
   ///
   /// [name] must not be null. If no integer list dynamic variable has been declared
   /// with the specified name, this function returns `null`.
-  static Future<ApptimizeListVariable<int>> getIntegerArray(String name) async {
+  static Future<ApptimizeListVariable<int>?> getIntegerArray(String name) async {
     return _getDynamicListVariable<int>(name, _DVTypeArray + _DVTypeInt);
   }
 
@@ -901,7 +1021,7 @@ class ApptimizeVariable<T> {
   ///
   /// [name] must not be null. If no double list dynamic variable has been declared
   /// with the specified name, this function returns `null`.
-  static Future<ApptimizeListVariable<double>> getDoubleArray(
+  static Future<ApptimizeListVariable<double>?> getDoubleArray(
       String name) async {
     return _getDynamicListVariable<double>(name, _DVTypeArray + _DVTypeDouble);
   }
@@ -911,7 +1031,7 @@ class ApptimizeVariable<T> {
   ///
   /// [name] must not be null. If no string dictionary dynamic variable has been declared
   /// with the specified name, this function returns `null`.
-  static Future<ApptimizeMapVariable<String>> getStringDictionary(
+  static Future<ApptimizeMapVariable<String>?> getStringDictionary(
       String name) async {
     return _getDynamicMapVariable<String>(
         name, _DVTypeDictionary + _DVTypeString);
@@ -922,7 +1042,7 @@ class ApptimizeVariable<T> {
   ///
   /// [name] must not be null. If no boolean dictionary dynamic variable has been declared
   /// with the specified name, this function returns `null`.
-  static Future<ApptimizeMapVariable<bool>> getBoolDictionary(
+  static Future<ApptimizeMapVariable<bool>?> getBoolDictionary(
       String name) async {
     return _getDynamicMapVariable<bool>(name, _DVTypeDictionary + _DVTypeBool);
   }
@@ -932,7 +1052,7 @@ class ApptimizeVariable<T> {
   ///
   /// [name] must not be null. If no integer dictionary dynamic variable has been declared
   /// with the specified name, this function returns `null`.
-  static Future<ApptimizeMapVariable<int>> getIntegerDictionary(
+  static Future<ApptimizeMapVariable<int>?> getIntegerDictionary(
       String name) async {
     return _getDynamicMapVariable<int>(name, _DVTypeDictionary + _DVTypeInt);
   }
@@ -942,7 +1062,7 @@ class ApptimizeVariable<T> {
   ///
   /// [name] must not be null. If no double dictionary dynamic variable has been declared
   /// with the specified name, this function returns `null`.
-  static Future<ApptimizeMapVariable<double>> getDoubleDictionary(
+  static Future<ApptimizeMapVariable<double>?> getDoubleDictionary(
       String name) async {
     return _getDynamicMapVariable<double>(
         name, _DVTypeDictionary + _DVTypeDouble);
@@ -950,7 +1070,7 @@ class ApptimizeVariable<T> {
 
   // Internals
 
-  static Future<ApptimizeVariable<T>> _declareDynamicVariable<T>(
+  static Future<ApptimizeVariable<T>?> _declareDynamicVariable<T>(
       String name, String type, T defaultValue) async {
     final bool isDeclared =
         await Apptimize._declareDynamicVariable(name, type, defaultValue);
@@ -961,7 +1081,7 @@ class ApptimizeVariable<T> {
     return null;
   }
 
-  static Future<ApptimizeListVariable<T>> _declareDynamicListVariable<T>(
+  static Future<ApptimizeListVariable<T>?> _declareDynamicListVariable<T>(
       String name, String type, List<T> defaultValue) async {
     final bool isDeclared =
         await Apptimize._declareDynamicVariable(name, type, defaultValue);
@@ -972,7 +1092,7 @@ class ApptimizeVariable<T> {
     return null;
   }
 
-  static Future<ApptimizeMapVariable<T>> _declareDynamicMapVariable<T>(
+  static Future<ApptimizeMapVariable<T>?> _declareDynamicMapVariable<T>(
       String name, String type, Map<String, T> defaultValue) async {
     final bool isDeclared =
         await Apptimize._declareDynamicVariable(name, type, defaultValue);
@@ -983,7 +1103,7 @@ class ApptimizeVariable<T> {
     return null;
   }
 
-  static Future<ApptimizeValueVariable<T>> _getDynamicVariable<T>(
+  static Future<ApptimizeValueVariable<T>?> _getDynamicVariable<T>(
       String name, String type) async {
     final bool isDeclared =
         await Apptimize._isDynamicVariableDeclared(name, type);
@@ -994,7 +1114,7 @@ class ApptimizeVariable<T> {
     return null;
   }
 
-  static Future<ApptimizeListVariable<T>> _getDynamicListVariable<T>(
+  static Future<ApptimizeListVariable<T>?> _getDynamicListVariable<T>(
       String name, String type) async {
     final bool isDeclared =
         await Apptimize._isDynamicVariableDeclared(name, type);
@@ -1005,7 +1125,7 @@ class ApptimizeVariable<T> {
     return null;
   }
 
-  static Future<ApptimizeMapVariable<T>> _getDynamicMapVariable<T>(
+  static Future<ApptimizeMapVariable<T>?> _getDynamicMapVariable<T>(
       String name, String type) async {
     final bool isDeclared =
         await Apptimize._isDynamicVariableDeclared(name, type);
@@ -1034,11 +1154,16 @@ class ApptimizeVariant {
   ApptimizeVariant(
       this.experimentName, this.experimentId, this.variantName, this.variantId);
 
-  static ApptimizeVariant _fromMap(Map<dynamic, dynamic> map) {
-    final String experimentName = map['experimentName'];
-    final String variantName = map['variantName'];
-    final int experimentId = map['experimentId'];
-    final int variantId = map['variantId'];
+  static ApptimizeVariant? _fromMap(Map<dynamic, dynamic> map) {
+    final String? experimentName = map['experimentName'];
+    final String? variantName = map['variantName'];
+    final int? experimentId = map['experimentId'];
+    final int? variantId = map['variantId'];
+
+    if (variantId == null) { developer.log("Missing `variantId` in `ApptimizeVariant` map", name: Apptimize._logTag); return null; }
+    if (variantName == null) { developer.log("Missing `variantName` in `ApptimizeVariant` map", name: Apptimize._logTag); return null; }
+    if (experimentId == null) { developer.log("Missing `experimentId` in `ApptimizeVariant` map", name: Apptimize._logTag); return null; }
+    if (experimentName == null) { developer.log("Missing `experimentName` in `ApptimizeVariant` map", name: Apptimize._logTag); return null; }
 
     return new ApptimizeVariant(
         experimentName, experimentId, variantName, variantId);
@@ -1109,7 +1234,7 @@ class ApptimizeTestInfo {
   /// The user id of the currently enrolled user.
   ///
   /// If the user has not been set then the anonymous user id is used.
-  final String userId;
+  final String? userId;
 
   /// The anonymous user id currently assigned to this apptimize instance.
   final String anonymousUserId;
@@ -1132,27 +1257,40 @@ class ApptimizeTestInfo {
       this.anonymousUserId,
       this.experimentType);
 
-  static ApptimizeTestInfo _fromMap(Map<dynamic, dynamic> map) {
-    final String testName = map['testName'];
-    final String enrolledVariantName = map['enrolledVariantName'];
-    final int testId = map['testId'];
-    final int enrolledVariantId = map['enrolledVariantId'];
-    final String testStartedDateRaw = map['testStartedDate'];
-    final DateTime testStartedDate =
+  static ApptimizeTestInfo? _fromMap(Map<dynamic, dynamic> map) {
+    final String? testName = map['testName'];
+    final String? enrolledVariantName = map['enrolledVariantName'];
+    final int? testId = map['testId'];
+    final int? enrolledVariantId = map['enrolledVariantId'];
+    final String? testStartedDateRaw = map['testStartedDate'];
+    final DateTime? testStartedDate =
         testStartedDateRaw != null ? DateTime.parse(testStartedDateRaw) : null;
-    final String testEnrolledDateRaw = map['testEnrolledDate'];
-    final DateTime testEnrolledDate = testEnrolledDateRaw != null
+    final String? testEnrolledDateRaw = map['testEnrolledDate'];
+    final DateTime? testEnrolledDate = testEnrolledDateRaw != null
         ? DateTime.parse(testEnrolledDateRaw)
         : null;
-    final int cycle = map['cycle'];
-    final int currentPhase = map['currentPhase'];
-    final int participationPhase = map['participationPhase'];
-    final bool userHasParticipated = map['userHasParticipated'];
-    final String userId = map['userId'];
-    final String anonymousUserId = map['anonymousUserId'];
-    final String apptimizeExperimentTypeName = map['experimentType'];
+    final int? cycle = map['cycle'];
+    final int? currentPhase = map['currentPhase'];
+    final int? participationPhase = map['participationPhase'];
+    final bool? userHasParticipated = map['userHasParticipated'];
+    final String? userId = map['userId'];
+    final String? anonymousUserId = map['anonymousUserId'];
+    final String? apptimizeExperimentTypeName = map['experimentType'];
     final ApptimizeExperimentType experimentType =
         apptimizeExperimentTypeName.parseApptimizeExperimentType();
+    
+    if (testName == null) { developer.log("Missing `testName` in `ApptimizeTestInfo` map", name: Apptimize._logTag); return null; }
+    if (enrolledVariantName == null) { developer.log("Missing `enrolledVariantName` in `ApptimizeTestInfo` map", name: Apptimize._logTag); return null; }
+    if (testId == null) { developer.log("Missing `testId` in `ApptimizeTestInfo` map", name: Apptimize._logTag); return null; }
+    if (enrolledVariantId == null) { developer.log("Missing `enrolledVariantId` in `ApptimizeTestInfo` map", name: Apptimize._logTag); return null; }
+    if (testStartedDate == null) { developer.log("Missing `testStartedDate` in `ApptimizeTestInfo` map", name: Apptimize._logTag); return null; }
+    if (testEnrolledDate == null) { developer.log("Missing `testEnrolledDate` in `ApptimizeTestInfo` map", name: Apptimize._logTag); return null; }
+    if (cycle == null) { developer.log("Missing `cycle` in `ApptimizeTestInfo` map", name: Apptimize._logTag); return null; }
+    if (currentPhase == null) { developer.log("Missing `currentPhase` in `ApptimizeTestInfo` map", name: Apptimize._logTag); return null; }
+    if (participationPhase == null) { developer.log("Missing `participationPhase` in `ApptimizeTestInfo` map", name: Apptimize._logTag); return null; }
+    if (userHasParticipated == null) { developer.log("Missing `userHasParticipated` in `ApptimizeTestInfo` map", name: Apptimize._logTag); return null; }
+    if (anonymousUserId == null) { developer.log("Missing `anonymousUserId` in `ApptimizeTestInfo` map", name: Apptimize._logTag); return null; }
+    if (apptimizeExperimentTypeName == null) { developer.log("Missing `experimentType` in `ApptimizeTestInfo` map", name: Apptimize._logTag); return null; }
 
     return new ApptimizeTestInfo(
         testName,
@@ -1176,38 +1314,38 @@ class ApptimizeTestInfo {
 class ApptimizeOptions {
   /// This option controls whether Apptimize will attempt to pair with the
   /// development server.
-  bool devicePairingEnabled;
+  bool? devicePairingEnabled;
 
   /// This option controls how long (in milliseconds) Apptimize will wait for
   /// tests and their associated data to download.
-  int delayUntilTestsAreAvailable;
+  int? delayUntilTestsAreAvailable;
 
   /// This option controls whether Apptimize will automatically import events
   /// from third-party analytics frameworks.
-  bool enableThirdPartyEventImporting;
+  bool? enableThirdPartyEventImporting;
 
   /// This option controls whether Apptimize will automatically export events to
   /// third-party analytics frameworks.
-  bool enableThirdPartyEventExporting;
+  bool? enableThirdPartyEventExporting;
 
   /// This option controls the amount of logging the Apptimize SDK will output.
   /// If not specified, the default value is [ApptimizeLogLevel.Off]
-  ApptimizeLogLevel logLevel;
+  ApptimizeLogLevel? logLevel;
 
   /// This option governs whether Apptimize will show winning variants and
   /// instant updates when [Apptimize.forceVariant] is used.
-  bool forceVariantsShowWinnersAndInstantUpdates;
+  bool? forceVariantsShowWinnersAndInstantUpdates;
 
   /// This option governs whether Apptimize will force a refresh on startup,
   /// even if metadata is currently saved on device. [ApptimizeInitializedEvent]
   /// will not be dispatched until the metadata has been downloaded. If metadata
   /// fails to download, [ApptimizeInitializedEvent] will dispatch only if there
   /// is a cached version of the data available on disk.
-  bool refreshMetaDataOnSetup;
+  bool? refreshMetaDataOnSetup;
 
   /// This option controls the Apptimize server region selection. You should not
   /// set this option unless your account is configured to use a different value.
-  ApptimizeServerRegion serverRegion;
+  ApptimizeServerRegion? serverRegion;
 
   Map<String, dynamic> toMap() {
     Map<String, dynamic> result = new Map<String, dynamic>();
@@ -1295,7 +1433,7 @@ class ApptimizeInstantUpdateOrWinnerInfo {
   /// update.
   ///
   /// If the user has not been set then the anonymous user id is used.
-  final String userId;
+  final String? userId;
 
   /// The anonymous user id currently assigned to this apptimize instance.
   final String anonymousUserId;
@@ -1312,20 +1450,30 @@ class ApptimizeInstantUpdateOrWinnerInfo {
       this.userId,
       this.anonymousUserId);
 
-  static ApptimizeInstantUpdateOrWinnerInfo _fromMap(
+  static ApptimizeInstantUpdateOrWinnerInfo? _fromMap(
       Map<dynamic, dynamic> map) {
-    final bool isInstantUpdate = map['isInstantUpdate'];
-    final String winningExperimentName = map['winningExperimentName'];
-    final int winningExperimentId = map['winningExperimentId'];
-    final String instantUpdateName = map['instantUpdateName'];
-    final int instantUpdateId = map['instantUpdateId'];
-    final String winningVariantName = map['winningVariantName'];
-    final int winningVariantId = map['winningVariantId'];
-    final String startDateRaw = map['startDate'];
-    final DateTime startDate =
+    final bool? isInstantUpdate = map['isInstantUpdate'];
+    final String? winningExperimentName = map['winningExperimentName'];
+    final int? winningExperimentId = map['winningExperimentId'];
+    final String? instantUpdateName = map['instantUpdateName'];
+    final int? instantUpdateId = map['instantUpdateId'];
+    final String? winningVariantName = map['winningVariantName'];
+    final int? winningVariantId = map['winningVariantId'];
+    final String? startDateRaw = map['startDate'];
+    final DateTime? startDate =
         startDateRaw != null ? DateTime.parse(startDateRaw) : null;
-    final String userId = map['userId'];
-    final String anonymousUserId = map['anonymousUserId'];
+    final String? userId = map['userId'];
+    final String? anonymousUserId = map['anonymousUserId'];
+
+    if (isInstantUpdate == null) { developer.log("Missing `isInstantUpdate` in `ApptimizeInstantUpdateOrWinnerInfo` map", name: Apptimize._logTag); return null; }
+    if (winningExperimentName == null) { developer.log("Missing `winningExperimentName` in `ApptimizeInstantUpdateOrWinnerInfo` map", name: Apptimize._logTag); return null; }
+    if (winningExperimentId == null) { developer.log("Missing `winningExperimentId` in `ApptimizeInstantUpdateOrWinnerInfo` map", name: Apptimize._logTag); return null; }
+    if (instantUpdateName == null) { developer.log("Missing `instantUpdateName` in `ApptimizeInstantUpdateOrWinnerInfo` map", name: Apptimize._logTag); return null; }
+    if (instantUpdateId == null) { developer.log("Missing `instantUpdateId` in `ApptimizeInstantUpdateOrWinnerInfo` map", name: Apptimize._logTag); return null; }
+    if (winningVariantName == null) { developer.log("Missing `winningVariantName` in `ApptimizeInstantUpdateOrWinnerInfo` map", name: Apptimize._logTag); return null; }
+    if (winningVariantId == null) { developer.log("Missing `winningVariantId` in `ApptimizeInstantUpdateOrWinnerInfo` map", name: Apptimize._logTag); return null; }
+    if (startDate == null) { developer.log("Missing `startDate` in `ApptimizeInstantUpdateOrWinnerInfo` map", name: Apptimize._logTag); return null; }
+    if (anonymousUserId == null) { developer.log("Missing `anonymousUserId` in `ApptimizeInstantUpdateOrWinnerInfo` map", name: Apptimize._logTag); return null; }
 
     return new ApptimizeInstantUpdateOrWinnerInfo(
         isInstantUpdate,
@@ -1418,16 +1566,16 @@ enum ApptimizeServerRegion {
   EUCS
 }
 
-extension _ApptimizeEnumSerialization on String {
+extension _ApptimizeEnumSerialization on String? {
   ApptimizeUnenrollmentReason parseApptimizeUnenrollmentReason() {
     return ApptimizeUnenrollmentReason.values.firstWhere(
-        (e) => e.toString().toLowerCase().split(".").last == this.toLowerCase(),
+        (e) => e.toString().toLowerCase().split(".").last == this!.toLowerCase(),
         orElse: () => ApptimizeUnenrollmentReason.Unknown);
   }
 
   ApptimizeExperimentType parseApptimizeExperimentType() {
     return ApptimizeExperimentType.values.firstWhere(
-        (e) => e.toString().toLowerCase().split(".").last == this.toLowerCase(),
+        (e) => e.toString().toLowerCase().split(".").last == this!.toLowerCase(),
         orElse: () => ApptimizeExperimentType.Unknown);
   }
 }

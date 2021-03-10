@@ -395,7 +395,7 @@ class _MyAppState extends State<MyApp> {
   }
 
   Future<void> testRunTestExpectBaseline() async {
-    String variation;
+    String? variation;
     String expected = 'baseline';
 
     await Apptimize.runTest("invalidTestName", () => {variation = 'baseline'}, {
@@ -406,7 +406,7 @@ class _MyAppState extends State<MyApp> {
   }
 
   Future<void> testRunTestExpectVariant() async {
-    String variation;
+    String? variation;
     String expected = 'variation1';
 
     await Apptimize.setCustomerUserId("fooman");
@@ -433,25 +433,28 @@ class _MyAppState extends State<MyApp> {
   }
 
   Future<void> testGetApptimizeTestInfo() async {
-    var result = await Apptimize.apptimizeTestInfo;
-
+    var result = await (Apptimize.apptimizeTestInfo as FutureOr<Map<String, ApptimizeTestInfo?>?>);
+    assertNotNull(result);
+    if (result == null) return;
     assertFalse(result.isEmpty, "There were no result in apptimize test info");
 
     var firstEntry = result.entries.first;
-    assertEqual(firstEntry.key, firstEntry.value.testName,
+    assertEqual(firstEntry.key, firstEntry.value!.testName,
         "Key does not match test name");
     assertTrue(result.containsKey('FlutterFeatureFlagOn'),
         "Result expected to contain 'FlutterFeatureFlagOn'");
   }
 
   Future<void> testGetInstantUpdateAndWinnerInfo() async {
-    var result = await Apptimize.instantUpdateAndWinnerInfo;
+    var result = await (Apptimize.instantUpdateAndWinnerInfo as FutureOr<Map<String, ApptimizeInstantUpdateOrWinnerInfo?>?>);
+    assertNotNull(result);
+    if (result == null) return;
     assertFalse(result.isEmpty,
         "There were no result in apptimize instant update and winner info");
     assertTrue(result.containsKey('FlutterCodeBlockTest'),
         "Result expected to contain 'FlutterCodeBlockTest'");
 
-    var fcbt = result['FlutterCodeBlockTest'];
+    var fcbt = result['FlutterCodeBlockTest']!;
     assertFalse(fcbt.isInstantUpdate, "isInstantUpdate");
     assertTrue(fcbt.instantUpdateName == null || fcbt.instantUpdateName.isEmpty,
         "instantUpdateName is not empty");
@@ -579,12 +582,12 @@ class _MyAppState extends State<MyApp> {
     if (!variants.keys.contains(5259309)) throw "Variants must contain 5259309";
 
     assertEqual(
-        "Forced", variants[5259309].variantName, "Unexpected variantName");
-    assertEqual(5259309, variants[5259309].variantId, "Unexpected variantId");
-    assertEqual("FlutterForceVariantTest", variants[5259309].experimentName,
+        "Forced", variants[5259309]!.variantName, "Unexpected variantName");
+    assertEqual(5259309, variants[5259309]!.variantId, "Unexpected variantId");
+    assertEqual("FlutterForceVariantTest", variants[5259309]!.experimentName,
         "Unexpected experimentName");
     assertEqual(
-        1599871, variants[5259309].experimentId, "Unexpected experimentId");
+        1599871, variants[5259309]!.experimentId, "Unexpected experimentId");
   }
 
   Future<void> testForceVariant() async {
@@ -727,28 +730,38 @@ class _MyAppState extends State<MyApp> {
     Apptimize.forceVariant(5259311);
 
     var boolValue = await ApptimizeVariable.getBool("flutterBool");
-    var boolArrayValue =
-        await ApptimizeVariable.getBoolArray("flutterBoolArray");
-    var boolDictValue =
-        await ApptimizeVariable.getBoolDictionary("flutterBoolDict");
+    var boolArrayValue = await ApptimizeVariable.getBoolArray("flutterBoolArray");
+    var boolDictValue = await ApptimizeVariable.getBoolDictionary("flutterBoolDict");
 
     var intValue = await ApptimizeVariable.getInteger("flutterInt");
-    var intArrayValue =
-        await ApptimizeVariable.getIntegerArray("flutterIntArray");
-    var intDictValue =
-        await ApptimizeVariable.getIntegerDictionary("flutterIntDict");
+    var intArrayValue = await ApptimizeVariable.getIntegerArray("flutterIntArray");
+    var intDictValue = await ApptimizeVariable.getIntegerDictionary("flutterIntDict");
 
     var doubleValue = await ApptimizeVariable.getDouble("flutterDouble");
-    var doubleArrayValue =
-        await ApptimizeVariable.getDoubleArray("flutterDoubleArray");
-    var doubleDictValue =
-        await ApptimizeVariable.getDoubleDictionary("flutterDoubleDict");
+    var doubleArrayValue = await ApptimizeVariable.getDoubleArray("flutterDoubleArray");
+    var doubleDictValue = await ApptimizeVariable.getDoubleDictionary("flutterDoubleDict");
 
     var stringValue = await ApptimizeVariable.getString("flutterString");
-    var stringArrayValue =
-        await ApptimizeVariable.getStringArray("flutterStringArray");
-    var stringDictValue =
-        await ApptimizeVariable.getStringDictionary("flutterStringDict");
+    var stringArrayValue = await ApptimizeVariable.getStringArray("flutterStringArray");
+    var stringDictValue = await ApptimizeVariable.getStringDictionary("flutterStringDict");
+
+    assertNotNull(boolValue);
+    assertNotNull(boolArrayValue);
+    assertNotNull(boolDictValue);
+    assertNotNull(intValue);
+    assertNotNull(intArrayValue);
+    assertNotNull(intDictValue);
+    assertNotNull(doubleValue);
+    assertNotNull(doubleArrayValue);
+    assertNotNull(doubleDictValue);
+    assertNotNull(stringValue);
+    assertNotNull(stringArrayValue);
+    assertNotNull(stringDictValue);
+    
+    if (boolValue == null || boolArrayValue == null || boolDictValue == null) return;
+    if (intValue == null || intArrayValue == null || intDictValue == null) return;
+    if (doubleValue == null || doubleArrayValue == null || doubleDictValue == null) return;
+    if (stringValue == null || stringArrayValue == null || stringDictValue == null) return;
 
     assertEqual(true, await boolValue.value, "flutterBool");
     assertEqualElements(
@@ -756,18 +769,24 @@ class _MyAppState extends State<MyApp> {
     assertEqualMaps({"red": false, "green": true}, await boolDictValue.value,
         "flutterBoolDict");
 
+    assertNotNull(intValue);
+    if (intValue == null) return;
     assertEqual(98, await intValue.value, "flutterInt");
     assertEqualElements(
         [1, 2, 3], await intArrayValue.value, "flutterIntArray");
     assertEqualMaps({"games": 55, "movies": 22}, await intDictValue.value,
         "flutterIntDict");
 
+    assertNotNull(doubleValue);
+    if (doubleValue == null) return;
     assertEqual(42.0, await doubleValue.value, "flutterDouble");
     assertEqualElements(
         [123.321, 321.123], await doubleArrayValue.value, "flutterDoubleArray");
     assertEqualMaps({"c": 0.1, "f": 32.1}, await doubleDictValue.value,
         "flutterDoubleDict");
 
+    assertNotNull(stringValue);
+    if (stringValue == null) return;
     assertEqual("galaxy", await stringValue.value, "flutterString");
     assertEqualElements(["one", "two", "three"], await stringArrayValue.value,
         "flutterBoolArray");
@@ -776,7 +795,7 @@ class _MyAppState extends State<MyApp> {
   }
 
   Future<void> testApptimizeInitializedEvent() async {
-    assertAny(_events, (x) => x is ApptimizeInitializedEvent);
+    assertAny(_events, (dynamic x) => x is ApptimizeInitializedEvent);
   }
 
   Future<void> testApptimizeResumedEvent() async {
@@ -786,55 +805,55 @@ class _MyAppState extends State<MyApp> {
       return;
     }
 
-    assertAny(_events, (x) => x is ApptimizeResumedEvent);
+    assertAny(_events, (dynamic x) => x is ApptimizeResumedEvent);
   }
 
   Future<void> testApptimizeTestsProcessedEvent() async {
-    assertAny(_events, (x) => x is ApptimizeTestsProcessedEvent);
+    assertAny(_events, (dynamic x) => x is ApptimizeTestsProcessedEvent);
   }
 
   Future<void> testApptimizeMetadataStateChangedEvent() async {
-    assertAny(_events, (x) => x is ApptimizeMetadataStateChangedEvent);
+    assertAny(_events, (dynamic x) => x is ApptimizeMetadataStateChangedEvent);
   }
 
   Future<void> testApptimizeEnrolledInExperimentEvent() async {
-    assertAny(_events, (x) => x is ApptimizeEnrolledInExperimentEvent);
+    assertAny(_events, (dynamic x) => x is ApptimizeEnrolledInExperimentEvent);
   }
 
   Future<void> testApptimizeParticipatedInExperimentEvent() async {
-    assertAny(_events, (x) => x is ApptimizeParticipatedInExperimentEvent);
+    assertAny(_events, (dynamic x) => x is ApptimizeParticipatedInExperimentEvent);
   }
 
   Future<void> testApptimizeUnenrolledInExperimentEvent() async {
-    assertAny(_events, (x) => x is ApptimizeUnenrolledInExperimentEvent);
+    assertAny(_events, (dynamic x) => x is ApptimizeUnenrolledInExperimentEvent);
   }
 
   Future<void> testDisable() async {
     await Apptimize.disable();
   }
 
-  void assertAny<T>(List<T> list, bool Function(T) test, [String message]) {
+  void assertAny<T>(List<T> list, bool Function(T) test, [String? message]) {
     if (!list.any(test)) {
-      var error = "$message\n" ?? "";
+      var error = message != null ? "$message\n" : "";
       throw "$error❌ List did not contain expected element.\n";
     }
   }
 
-  void assertTrue(bool actual, [String message]) {
+  void assertTrue(bool actual, [String? message]) {
     if (!actual) {
-      var error = "$message\n" ?? "";
+      var error = message != null ? "$message\n" : "";
       throw "$error❌ Value should be true.\n";
     }
   }
 
-  void assertFalse(bool actual, [String message]) {
+  void assertFalse(bool actual, [String? message]) {
     if (actual) {
-      var error = "$message\n" ?? "";
+      var error = message != null ? "$message\n" : "";
       throw "$error❌ Value should be false.\n";
     }
   }
 
-  void assertEqual<T>(T expected, T actual, [String message]) {
+  void assertEqual<T>(T expected, T actual, [String? message]) {
     if (expected != actual) {
       var error =
           "❌ ${expected.runtimeType}s not equal.\n  Expected: $expected\n  Got: $actual\n";
@@ -848,36 +867,36 @@ class _MyAppState extends State<MyApp> {
   }
 
   void assertEqualElements<T>(List<T> expected, List<T> actual,
-      [String message]) {
+      [String? message]) {
     if (expected.length != actual.length) {
-      var error = "$message\n" ?? "";
+      var error = message != null ? "$message\n" : "";
       throw "$error❌ Lists not of equal length.\n  Expected: ${expected.length}\n  Got: ${actual.length}\n";
     }
 
     for (int i = 0; i < expected.length; i++) {
       if (expected[i] != actual[i]) {
-        var error = "$message\n" ?? "";
+        var error = message != null ? "$message\n" : "";
         throw "$error❌ Lists do not contain same elements.\n  Expected: ${expected.join(", ")}\n  Got: ${actual.join(", ")}\n";
       }
     }
   }
 
   void assertEqualMaps<T>(Map<String, T> expected, Map<String, T> actual,
-      [String message]) {
+      [String? message]) {
     if (expected.length != actual.length) {
-      var error = "$message\n" ?? "";
+      var error = message != null ? "$message\n" : "";
       throw "$error❌ Maps not of equal length.\n  Expected: ${expected.length}\n  Got: ${actual.length}\n";
     }
 
     for (var key in expected.keys) {
       if (expected[key] != actual[key]) {
-        var error = "$message\n" ?? "";
+        var error = message != null ? "$message\n" : "";
         throw "$error❌ Maps do not contain same elements.\n  Expected: ${expected.entries.join(", ")}\n  Got: ${actual.entries.join(", ")}\n";
       }
     }
   }
 
-  void assertNotNull<T>(T actual, [String message]) {
+  void assertNotNull<T>(T actual, [String? message]) {
     if (actual == null) {
       var error = "❌ Value was null.\n  Expected: Not null";
 
@@ -889,7 +908,7 @@ class _MyAppState extends State<MyApp> {
     }
   }
 
-  void assertNull<T>(T actual, [String message]) {
+  void assertNull<T>(T actual, [String? message]) {
     if (actual != null) {
       var error = "❌ Value was not null.\n  Expected: Null\n  Actual: $actual";
 
