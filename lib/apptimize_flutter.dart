@@ -1500,8 +1500,10 @@ class ApptimizeMetaDataState {
       this.isAvailable, this.isUpToDate, this.isRefreshing);
 }
 
-/// Information about a single winning A/B test or instant update this device
-/// will display.
+/// Base class for information about a single winning A/B test or instant update
+/// this device will display.
+/// 
+/// See [ApptimizeInstantUpdate] or [ApptimizeWinnerInfo].
 class ApptimizeInstantUpdateOrWinnerInfo {
   /// The date this device would start showing the winning variant or instant
   /// update.
