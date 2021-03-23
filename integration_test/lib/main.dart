@@ -457,14 +457,13 @@ class _MyAppState extends State<MyApp> {
         "Result expected to contain 'FlutterCodeBlockTest'");
 
     var fcbt = result['FlutterCodeBlockTest']!;
-    assertFalse(fcbt.isInstantUpdate, "isInstantUpdate");
-    assertTrue(fcbt.instantUpdateName == null || fcbt.instantUpdateName.isEmpty,
-        "instantUpdateName is not empty");
-    assertEqual(1599869, fcbt.winningExperimentId, "winningExperimentId");
-    assertEqual('FlutterCodeBlockTest', fcbt.winningExperimentName,
+    var fcbtWinner = fcbt as ApptimizeWinnerInfo;
+
+    assertEqual(1599869, fcbtWinner.winningExperimentId, "winningExperimentId");
+    assertEqual('FlutterCodeBlockTest', fcbtWinner.winningExperimentName,
         "winningExperimentName");
-    assertEqual(5259302, fcbt.winningVariantId, "winningVariantId");
-    assertEqual('Variant B', fcbt.winningVariantName, "winningVariantName");
+    assertEqual(5259302, fcbtWinner.winningVariantId, "winningVariantId");
+    assertEqual('Variant B', fcbtWinner.winningVariantName, "winningVariantName");
   }
 
   Future<void> testGetSetUserAttribute() async {
