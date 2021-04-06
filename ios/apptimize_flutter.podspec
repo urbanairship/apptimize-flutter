@@ -4,7 +4,7 @@
 #
 Pod::Spec.new do |s|
   s.name             = 'apptimize_flutter'
-  s.version          = '2.0.0'
+  s.version          = '2.0.1'
   s.summary          = 'Apptimize SDK wrapper for iOS'
   s.description      = <<-DESC
   Apptimize SDK wrapper for iOS.
