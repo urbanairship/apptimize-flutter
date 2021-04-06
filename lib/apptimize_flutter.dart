@@ -1500,39 +1500,11 @@ class ApptimizeMetaDataState {
       this.isAvailable, this.isUpToDate, this.isRefreshing);
 }
 
-/// Information about a single winning A/B test or instant update this device
-/// will display.
+/// Base class for information about a single winning A/B test or instant update
+/// this device will display.
+/// 
+/// See [ApptimizeInstantUpdate] or [ApptimizeWinnerInfo].
 class ApptimizeInstantUpdateOrWinnerInfo {
-  /// The experiment is an instant update.
-  ///
-  /// Returns `true` if this info represents an instant update, otherwise this
-  /// object represents a winning experiment.
-  final bool isInstantUpdate;
-
-  /// The experiment name of the winning experiment.
-  final String winningExperimentName;
-
-  /// The experiment id of the winning experiment.
-  final int winningExperimentId;
-
-  /// The name of the instant update.
-  final String instantUpdateName;
-
-  /// The id of the instant update.
-  final int instantUpdateId;
-
-  /// The name of the winning variant.
-  ///
-  /// If this is a winner, then this is the name of the winning variant.
-  /// Otherwise it is `null`.
-  final String winningVariantName;
-
-  /// The id of the winning variant
-  ///
-  /// If this is a winner, then this is the unique numeric id of the winning
-  /// variant. Otherwise it is `null`.
-  final int winningVariantId;
-
   /// The date this device would start showing the winning variant or instant
   /// update.
   ///
@@ -1550,16 +1522,10 @@ class ApptimizeInstantUpdateOrWinnerInfo {
   final String anonymousUserId;
 
   const ApptimizeInstantUpdateOrWinnerInfo(
-      this.isInstantUpdate,
-      this.winningExperimentName,
-      this.winningExperimentId,
-      this.instantUpdateName,
-      this.instantUpdateId,
-      this.winningVariantName,
-      this.winningVariantId,
-      this.startDate,
-      this.userId,
-      this.anonymousUserId);
+    DateTime startDate,
+    String? userId,
+    String anonymousUserId
+  ) : startDate = startDate, userId = userId, anonymousUserId = anonymousUserId;
 
   static ApptimizeInstantUpdateOrWinnerInfo? _fromMap(
       Map<dynamic, dynamic> map) {
@@ -1582,42 +1548,6 @@ class ApptimizeInstantUpdateOrWinnerInfo {
           name: Apptimize._logTag);
       return null;
     }
-    if (winningExperimentName == null) {
-      developer.log(
-          "Missing `winningExperimentName` in `ApptimizeInstantUpdateOrWinnerInfo` map",
-          name: Apptimize._logTag);
-      return null;
-    }
-    if (winningExperimentId == null) {
-      developer.log(
-          "Missing `winningExperimentId` in `ApptimizeInstantUpdateOrWinnerInfo` map",
-          name: Apptimize._logTag);
-      return null;
-    }
-    if (instantUpdateName == null) {
-      developer.log(
-          "Missing `instantUpdateName` in `ApptimizeInstantUpdateOrWinnerInfo` map",
-          name: Apptimize._logTag);
-      return null;
-    }
-    if (instantUpdateId == null) {
-      developer.log(
-          "Missing `instantUpdateId` in `ApptimizeInstantUpdateOrWinnerInfo` map",
-          name: Apptimize._logTag);
-      return null;
-    }
-    if (winningVariantName == null) {
-      developer.log(
-          "Missing `winningVariantName` in `ApptimizeInstantUpdateOrWinnerInfo` map",
-          name: Apptimize._logTag);
-      return null;
-    }
-    if (winningVariantId == null) {
-      developer.log(
-          "Missing `winningVariantId` in `ApptimizeInstantUpdateOrWinnerInfo` map",
-          name: Apptimize._logTag);
-      return null;
-    }
     if (startDate == null) {
       developer.log(
           "Missing `startDate` in `ApptimizeInstantUpdateOrWinnerInfo` map",
@@ -1631,18 +1561,108 @@ class ApptimizeInstantUpdateOrWinnerInfo {
       return null;
     }
 
-    return new ApptimizeInstantUpdateOrWinnerInfo(
-        isInstantUpdate,
-        winningExperimentName,
-        winningExperimentId,
+    if (isInstantUpdate) {
+      if (instantUpdateName == null) {
+        developer.log(
+            "Missing `instantUpdateName` in `ApptimizeInstantUpdateOrWinnerInfo` map",
+            name: Apptimize._logTag);
+        return null;
+      }
+      if (instantUpdateId == null) {
+        developer.log(
+            "Missing `instantUpdateId` in `ApptimizeInstantUpdateOrWinnerInfo` map",
+            name: Apptimize._logTag);
+        return null;
+      }
+      return new ApptimizeInstantUpdate(
         instantUpdateName,
         instantUpdateId,
+        startDate,
+        userId,
+        anonymousUserId);
+    } else {
+      if (winningExperimentName == null) {
+        developer.log(
+            "Missing `winningExperimentName` in `ApptimizeInstantUpdateOrWinnerInfo` map",
+            name: Apptimize._logTag);
+        return null;
+      }
+      if (winningExperimentId == null) {
+        developer.log(
+            "Missing `winningExperimentId` in `ApptimizeInstantUpdateOrWinnerInfo` map",
+            name: Apptimize._logTag);
+        return null;
+      }
+      if (winningVariantName == null) {
+        developer.log(
+            "Missing `winningVariantName` in `ApptimizeInstantUpdateOrWinnerInfo` map",
+            name: Apptimize._logTag);
+        return null;
+      }
+      if (winningVariantId == null) {
+        developer.log(
+            "Missing `winningVariantId` in `ApptimizeInstantUpdateOrWinnerInfo` map",
+            name: Apptimize._logTag);
+        return null;
+      }
+      return new ApptimizeWinnerInfo(
+        winningExperimentName,
+        winningExperimentId,
         winningVariantName,
         winningVariantId,
         startDate,
         userId,
         anonymousUserId);
+    }
   }
+}
+
+/// Information about a single winning A/B test this device will display.
+class ApptimizeWinnerInfo extends ApptimizeInstantUpdateOrWinnerInfo {
+  /// The experiment name of the winning experiment.
+  final String winningExperimentName;
+
+  /// The experiment id of the winning experiment.
+  final int winningExperimentId;
+
+  /// The name of the winning variant.
+  ///
+  /// If this is a winner, then this is the name of the winning variant.
+  /// Otherwise it is `null`.
+  final String winningVariantName;
+
+  /// The id of the winning variant
+  ///
+  /// If this is a winner, then this is the unique numeric id of the winning
+  /// variant. Otherwise it is `null`.
+  final int winningVariantId;
+
+  const ApptimizeWinnerInfo(
+    this.winningExperimentName,
+    this.winningExperimentId,
+    this.winningVariantName,
+    this.winningVariantId,
+    DateTime startDate,
+    String? userId,
+    String anonymousUserId
+    ) : super(startDate, userId, anonymousUserId);
+}
+
+/// Information about a single instant update this device will display.
+class ApptimizeInstantUpdate extends ApptimizeInstantUpdateOrWinnerInfo {
+  /// The name of the instant update.
+  final String instantUpdateName;
+
+  /// The id of the instant update.
+  final int instantUpdateId;
+
+  const ApptimizeInstantUpdate(
+    this.instantUpdateName,
+    this.instantUpdateId,
+    DateTime startDate,
+    String? userId,
+    String anonymousUserId
+    ) : super(startDate, userId, anonymousUserId);
 }
 
 /// This enumerated type is used to indicate why the user has been unenrolled
