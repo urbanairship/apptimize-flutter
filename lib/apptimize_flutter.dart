@@ -834,7 +834,7 @@ class ApptimizeVariable<T> {
   /// update the default value or [null] if it is not a [String].
   ///
   /// The [name] must not be `null`.
-  static Future<ApptimizeVariable<String>?> declareString(
+  static Future<ApptimizeValueVariable<String>?> declareString(
       String name, String defaultValue) async {
     return _declareDynamicVariable<String>(name, _DVTypeString, defaultValue);
   }
@@ -847,7 +847,7 @@ class ApptimizeVariable<T> {
   /// update the default value or [null] if it is not a [bool].
   ///
   /// The [name] and [defaultValue] must not be `null`.
-  static Future<ApptimizeVariable<bool>?> declareBool(
+  static Future<ApptimizeValueVariable<bool>?> declareBool(
       String name, bool defaultValue) async {
     return _declareDynamicVariable<bool>(name, _DVTypeBool, defaultValue);
   }
@@ -860,7 +860,7 @@ class ApptimizeVariable<T> {
   /// update the default value or [null] if it is not an [int].
   ///
   /// The [name] and [defaultValue] must not be `null`.
-  static Future<ApptimizeVariable<int>?> declareInteger(
+  static Future<ApptimizeValueVariable<int>?> declareInteger(
       String name, int defaultValue) async {
     return _declareDynamicVariable<int>(name, _DVTypeInt, defaultValue);
   }
@@ -873,7 +873,7 @@ class ApptimizeVariable<T> {
   /// update the default value or [null] if it is not a [double].
   ///
   /// The [name] and [defaultValue] must not be `null`.
-  static Future<ApptimizeVariable<double>?> declareDouble(
+  static Future<ApptimizeValueVariable<double>?> declareDouble(
       String name, double defaultValue) async {
     return _declareDynamicVariable<double>(name, _DVTypeDouble, defaultValue);
   }
@@ -1117,12 +1117,12 @@ class ApptimizeVariable<T> {
 
   // Internals
 
-  static Future<ApptimizeVariable<T>?> _declareDynamicVariable<T>(
+  static Future<ApptimizeValueVariable<T>?> _declareDynamicVariable<T>(
       String name, String type, T defaultValue) async {
     final bool isDeclared =
         await Apptimize._declareDynamicVariable(name, type, defaultValue);
     if (isDeclared) {
-      return new ApptimizeVariable<T>._(name, type);
+      return new ApptimizeValueVariable<T>._(name, type);
     }
 
     return null;
