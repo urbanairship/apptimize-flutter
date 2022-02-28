@@ -10,7 +10,7 @@ both Android and iOS flutter apps.
     **Using pub.dev**
     ```yml
     dependencies:
-        apptimize_flutter: ^1.0    # Any 1.x version where x >= 0 works.
+        apptimize_flutter: ^2.0.0    # Any 2.x version where x >= 0 works.
     ```
 
     **Using git**
@@ -37,6 +37,10 @@ both Android and iOS flutter apps.
 
     * From *Android Studio/IntelliJ*: Click **Packages** get in the action ribbon at the top of `pubspec.yaml`.
     * From *VS Code*: Click **Get Packages** located in right side of the action ribbon at the top of `pubspec.yaml`.
+    * You may need to update your `ios/Podfile` to require iOS 11+, the lowest version supported by the SDK:
+        ```
+        platform :ios, '11.0'
+        ```
 
 3. In each dart files you wish to use apptimize, add the following import statement:
 
