@@ -13,13 +13,6 @@ both Android and iOS flutter apps.
         apptimize_flutter: ^2.0.0    # Any 2.x version where x >= 0 works.
     ```
 
-    **Using git**
-    ```yml
-    dependencies:
-        apptimize_flutter:
-            git: git://github.com/urbanairship/apptimize_flutter.git
-    ```
-
     **Using the release from the official website**
     * Download the latest SDK from the [SDK Download](https://apptimize.com/docs/sdk-information.html) page.
     * Copy the SDK to a new directory outside of your project, such as apptimize_flutter.
