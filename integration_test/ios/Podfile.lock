@@ -1,5 +1,5 @@
 PODS:
-  - Apptimize (3.4.15)
+  - Apptimize (3.5.10)
   - apptimize_flutter (2.0.1):
     - Apptimize (~> 3)
     - Flutter
@@ -20,7 +20,7 @@ EXTERNAL SOURCES:
     :path: Flutter
 
 SPEC CHECKSUMS:
-  Apptimize: f4af5a3788509b1b7eaabb647e37424e0563af8e
+  Apptimize: 8efa27cb1eebc15a67131cde220ee9b016f1f742
   apptimize_flutter: 77e91122a27ad5b82d9e3fe0e3ec344a7847937e
   Flutter: 50d75fe2f02b26cc09d224853bb45737f8b3214a
 
