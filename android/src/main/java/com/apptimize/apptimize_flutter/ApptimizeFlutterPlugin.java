@@ -227,7 +227,7 @@ public class ApptimizeFlutterPlugin implements FlutterPlugin, MethodCallHandler,
           break;
 
         case "getLibraryVersion":
-          String version = Apptimize.class.getPackage().getImplementationVersion();
+          String version = Apptimize.getVersion();
           resultValue = version + " (Android)";
           break;
 
