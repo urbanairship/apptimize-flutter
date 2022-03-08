@@ -259,7 +259,8 @@ class Apptimize {
     if (codeblock != null) {
       block = codeblocks[codeblock];
       if (block == null) {
-        developer.log("`runTest` received unknown codeblock `${codeblock}` in result, executing default.",
+        developer.log(
+            "`runTest` received unknown codeblock `${codeblock}` in result, executing default.",
             name: Apptimize._logTag);
       }
     }
@@ -659,15 +660,14 @@ class Apptimize {
           break;
 
         default:
-            developer.log("Don't know how to handle ${call.method}.",
+          developer.log("Don't know how to handle ${call.method}.",
               name: Apptimize._logTag);
           break;
       }
     } catch (e) {
       developer.log("An error occurred handling a callback from the plugin.",
-        name: Apptimize._logTag);
-      developer.log("${e}",
-        name: Apptimize._logTag);
+          name: Apptimize._logTag);
+      developer.log("${e}", name: Apptimize._logTag);
     }
   }
 
@@ -1502,7 +1502,7 @@ class ApptimizeMetaDataState {
 
 /// Base class for information about a single winning A/B test or instant update
 /// this device will display.
-/// 
+///
 /// See [ApptimizeInstantUpdate] or [ApptimizeWinnerInfo].
 class ApptimizeInstantUpdateOrWinnerInfo {
   /// The date this device would start showing the winning variant or instant
@@ -1522,10 +1522,10 @@ class ApptimizeInstantUpdateOrWinnerInfo {
   final String anonymousUserId;
 
   const ApptimizeInstantUpdateOrWinnerInfo(
-    DateTime startDate,
-    String? userId,
-    String anonymousUserId
-  ) : startDate = startDate, userId = userId, anonymousUserId = anonymousUserId;
+      DateTime startDate, String? userId, String anonymousUserId)
+      : startDate = startDate,
+        userId = userId,
+        anonymousUserId = anonymousUserId;
 
   static ApptimizeInstantUpdateOrWinnerInfo? _fromMap(
       Map<dynamic, dynamic> map) {
@@ -1574,12 +1574,8 @@ class ApptimizeInstantUpdateOrWinnerInfo {
             name: Apptimize._logTag);
         return null;
       }
-      return new ApptimizeInstantUpdate(
-        instantUpdateName,
-        instantUpdateId,
-        startDate,
-        userId,
-        anonymousUserId);
+      return new ApptimizeInstantUpdate(instantUpdateName, instantUpdateId,
+          startDate, userId, anonymousUserId);
     } else {
       if (winningExperimentName == null) {
         developer.log(
@@ -1606,13 +1602,13 @@ class ApptimizeInstantUpdateOrWinnerInfo {
         return null;
       }
       return new ApptimizeWinnerInfo(
-        winningExperimentName,
-        winningExperimentId,
-        winningVariantName,
-        winningVariantId,
-        startDate,
-        userId,
-        anonymousUserId);
+          winningExperimentName,
+          winningExperimentId,
+          winningVariantName,
+          winningVariantId,
+          startDate,
+          userId,
+          anonymousUserId);
     }
   }
 }
@@ -1638,14 +1634,14 @@ class ApptimizeWinnerInfo extends ApptimizeInstantUpdateOrWinnerInfo {
   final int winningVariantId;
 
   const ApptimizeWinnerInfo(
-    this.winningExperimentName,
-    this.winningExperimentId,
-    this.winningVariantName,
-    this.winningVariantId,
-    DateTime startDate,
-    String? userId,
-    String anonymousUserId
-    ) : super(startDate, userId, anonymousUserId);
+      this.winningExperimentName,
+      this.winningExperimentId,
+      this.winningVariantName,
+      this.winningVariantId,
+      DateTime startDate,
+      String? userId,
+      String anonymousUserId)
+      : super(startDate, userId, anonymousUserId);
 }
 
 /// Information about a single instant update this device will display.
@@ -1656,13 +1652,9 @@ class ApptimizeInstantUpdate extends ApptimizeInstantUpdateOrWinnerInfo {
   /// The id of the instant update.
   final int instantUpdateId;
 
-  const ApptimizeInstantUpdate(
-    this.instantUpdateName,
-    this.instantUpdateId,
-    DateTime startDate,
-    String? userId,
-    String anonymousUserId
-    ) : super(startDate, userId, anonymousUserId);
+  const ApptimizeInstantUpdate(this.instantUpdateName, this.instantUpdateId,
+      DateTime startDate, String? userId, String anonymousUserId)
+      : super(startDate, userId, anonymousUserId);
 }
 
 /// This enumerated type is used to indicate why the user has been unenrolled
