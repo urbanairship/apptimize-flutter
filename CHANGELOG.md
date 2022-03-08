@@ -1,5 +1,7 @@
 ## 2.0.1
 
+* Fix ApptimizeVariable.declareXXX().value 
+* Use latest 3.x Android SDK instead of pinning 3.7.18
 
 ## 2.0.0
 
