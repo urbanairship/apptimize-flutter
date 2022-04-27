@@ -13,15 +13,6 @@ both Android and iOS flutter apps.
         apptimize_flutter: ^2.0.0    # Any 2.x version where x >= 0 works.
     ```
 
-    **Using the release from the official website**
-    * Download the latest SDK from the [SDK Download](https://apptimize.com/docs/sdk-information.html) page.
-    * Copy the SDK to a new directory outside of your project, such as apptimize_flutter.
-    * Reference the SDK in your pubspec.yaml as follows:
-        ```yml
-        dependencies:
-            apptimize_flutter:
-                path: ../apptimize_flutter/
-        ```
 2. Install it.
 
     * From the terminal: Run `flutter pub get`.
