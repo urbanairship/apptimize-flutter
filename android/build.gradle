@@ -14,7 +14,7 @@ buildscript {
 
 rootProject.allprojects {
     repositories {
-        maven { url 'http://maven.apptimize.com/artifactory/repo' }
+        maven { url 'https://maven.apptimize.com/artifactory/repo' }
         google()
         jcenter()
     }
