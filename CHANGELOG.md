@@ -1,3 +1,7 @@
+## 2.0.2
+
+* Use a https maven URL for Android SDK dependency, for Gradle 7 support 
+
 ## 2.0.1
 
 * Fix ApptimizeVariable.declareXXX().value 
