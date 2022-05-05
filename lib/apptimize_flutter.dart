@@ -254,13 +254,13 @@ class Apptimize {
       "updateMetadataTimeout": updateMetadataTimeout
     });
 
-    Function? block = null;
+    Function? block;
 
     if (codeblock != null) {
       block = codeblocks[codeblock];
       if (block == null) {
         developer.log(
-            "`runTest` received unknown codeblock `${codeblock}` in result, executing default.",
+            "`runTest` received unknown codeblock `$codeblock` in result, executing default.",
             name: Apptimize._logTag);
       }
     }
@@ -297,29 +297,26 @@ class Apptimize {
   static Future<Map<String, ApptimizeTestInfo?>?> get apptimizeTestInfo async {
     final Map<dynamic, dynamic>? result =
         await _channel.invokeMethod('getApptimizeTestInfo');
+
     if (result == null) {
       return null;
     }
 
     final entries = result.entries;
-    if (entries == null) {
-      developer.log("Missing `entries` in `getApptimizeInfo` response",
-          name: Apptimize._logTag);
-      return null;
-    }
-
     Map<String, ApptimizeTestInfo?> apptimizeTestInfos =
         new Map<String, ApptimizeTestInfo?>();
+
     for (final e in entries) {
-      final String key = e.key;
-      final Map value = e.value;
-      if (key == null) {
+      final key = e.key;
+      final value = e.value;
+      if (!(key is String)) {
         developer.log(
             "Expected `String` key in entries of `getApptimizeTestInfo` response",
             name: Apptimize._logTag);
         continue;
       }
-      if (value == null) {
+
+      if (!(value is Map)) {
         developer.log(
             "Expected `Map` value in entries of `getApptimizeTestInfo` response",
             name: Apptimize._logTag);
@@ -350,25 +347,19 @@ class Apptimize {
     }
 
     final entries = result.entries;
-    if (entries == null) {
-      developer.log(
-          "Missing `entries` in `getInstantUpdateAndWinnerInfo` response",
-          name: Apptimize._logTag);
-      return null;
-    }
-
     Map<String, ApptimizeInstantUpdateOrWinnerInfo?> apptimizeTestInfos =
         new Map<String, ApptimizeInstantUpdateOrWinnerInfo?>();
+
     for (final e in entries) {
-      final String key = e.key;
-      final Map value = e.value;
-      if (key == null) {
+      final key = e.key;
+      final value = e.value;
+      if (!(key is String)) {
         developer.log(
             "Expected `String` key in entries of `getInstantUpdateAndWinnerInfo` response",
             name: Apptimize._logTag);
         continue;
       }
-      if (value == null) {
+      if (!(value is Map)) {
         developer.log(
             "Expected `Map` value in entries of `getInstantUpdateAndWinnerInfo` response",
             name: Apptimize._logTag);
@@ -515,15 +506,15 @@ class Apptimize {
     }
 
     Map<int, ApptimizeVariant> variants = new Map<int, ApptimizeVariant>();
-    for (final Map e in result) {
-      if (e == null) {
+    for (final e in result) {
+      if (!(e is Map)) {
         developer.log("Expected `Map` in each entry of `getVariants` response",
             name: Apptimize._logTag);
         continue;
       }
 
-      final ApptimizeVariant variant = ApptimizeVariant._fromMap(e)!;
-      final int key = variant.variantId;
+      final variant = ApptimizeVariant._fromMap(e);
+      final key = variant?.variantId;
       if (variant == null || key == null) {
         developer.log(
             "Expected `int` `variantId` in each entry of `getVariants` response",
@@ -667,7 +658,7 @@ class Apptimize {
     } catch (e) {
       developer.log("An error occurred handling a callback from the plugin.",
           name: Apptimize._logTag);
-      developer.log("${e}", name: Apptimize._logTag);
+      developer.log("$e", name: Apptimize._logTag);
     }
   }
 
@@ -716,7 +707,7 @@ class ApptimizeValueVariable<T> extends ApptimizeVariable<T> {
   /// Returns the default value if there is an issue with the incoming variant
   /// data.
   Future<T?> get value async {
-    T? value = await Apptimize._getDynamicVariableValue(name, _type);
+    final value = await Apptimize._getDynamicVariableValue(name, _type);
     if (value == null) {
       return null;
     }
@@ -726,7 +717,7 @@ class ApptimizeValueVariable<T> extends ApptimizeVariable<T> {
     }
 
     developer.log(
-        "Apptimzie variable with name `${name}` did not contain the expected type.",
+        "Apptimzie variable with name `$name` did not contain the expected type.",
         name: Apptimize._logTag);
 
     return null;
