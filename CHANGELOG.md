@@ -1,3 +1,7 @@
+## 2.0.3
+
+* Improved nullsafety support
+
 ## 2.0.2
 
 * Use a https maven URL for Android SDK dependency, for Gradle 7 support 
